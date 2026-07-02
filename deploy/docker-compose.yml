@@ -1,0 +1,8 @@
+services:
+  wayfinder-aprs-gateway:
+    image: ghcr.io/kennethbrewer3/wayfinder_aprs_gateway:latest
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - .env
