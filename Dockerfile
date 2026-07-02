@@ -20,7 +20,7 @@ COPY config.example.json /app/config.example.json
 
 ENV APRS_KISS_HOST=host.docker.internal
 ENV APRS_KISS_PORT=8001
-ENV APRS_MAPPING_SERVER_URL=http://host.docker.internal:8080/api/aprs/position
+ENV APRS_MAPPING_SERVER_URL=http://host.docker.internal:18082
 ENV APRS_LOG_LEVEL=info
 
 ENTRYPOINT ["/app/wayfinder_aprs_gateway"]

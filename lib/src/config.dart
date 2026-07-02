@@ -55,7 +55,7 @@ class GatewayConfig {
               fileValues,
               'mappingServerUrl',
             ) ??
-            'http://localhost:8080/api/aprs/position',
+            'http://localhost:18082',
       ),
       packetSource: PacketSourceType.parse(
         _envOrFile('APRS_PACKET_SOURCE', fileValues, 'packetSource'),

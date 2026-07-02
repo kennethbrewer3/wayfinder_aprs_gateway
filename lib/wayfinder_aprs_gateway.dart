@@ -22,4 +22,4 @@ export 'src/simulator/waypoint_path.dart';
 // Backward-compatible defaults for simple usage.
 const kissHost = '127.0.0.1';
 const kissPort = 8001;
-const mappingServerUrl = 'http://localhost:8080/api/aprs/position';
+const mappingServerUrl = 'http://localhost:18082';

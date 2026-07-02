@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'config.dart';
 import 'logger.dart';
+import 'wayfinder_marker_mapper.dart';
 
 class MappingClient {
   MappingClient({
@@ -12,49 +13,116 @@ class MappingClient {
 
   final GatewayConfig config;
   final StructuredLogger logger;
+  final Map<String, String> _markerIdsByStationId = {};
 
+  /// Upserts a Wayfinder marker from a parsed APRS payload.
   Future<bool> post(Map<String, dynamic> payload) async {
-    return _send(
-      method: 'POST',
-      url: config.mappingServerUrl,
-      body: payload,
-      onSuccess: (statusCode) {
-        logger.info(
-          'Posted APRS packet',
-          fields: {
-            'stationId': payload['stationId'],
-            'packetType': payload['packetType'],
-            'statusCode': statusCode,
-          },
-        );
-        return true;
-      },
-      onFailure: (statusCode, body) {
-        if (statusCode >= 500) {
-          logger.warn(
-            'Mapping server error',
-            fields: {
-              'statusCode': statusCode,
-              'body': body,
-            },
-          );
-          return false;
-        }
+    final stationId = payload['stationId']?.toString();
+    if (stationId == null || stationId.isEmpty) {
+      logger.warn('Skipping APRS payload without stationId');
+      return true;
+    }
 
-        logger.warn(
-          'Mapping server rejected packet',
-          fields: {
-            'statusCode': statusCode,
-            'body': body,
-          },
-        );
-        return true;
+    final markerId = _markerIdsByStationId[stationId] ??
+        await _findMarkerIdByName(stationId, payload['layerId']?.toString());
+
+    if (markerId != null) {
+      _markerIdsByStationId[stationId] = markerId;
+      return _updateMarker(markerId, payload);
+    }
+
+    return _createMarker(payload);
+  }
+
+  Future<bool> _createMarker(Map<String, dynamic> payload) async {
+    final stationId = payload['stationId']?.toString();
+    Map<String, dynamic> body;
+    try {
+      body = WayfinderMarkerMapper.createBody(payload);
+    } on FormatException catch (e) {
+      logger.warn(
+        'Skipping invalid APRS payload',
+        fields: {'error': e.message, 'stationId': stationId},
+      );
+      return true;
+    }
+
+    final decoded = await _sendJson(
+      method: 'POST',
+      url: markersApiUrl(config.mappingServerUrl),
+      body: body,
+    );
+
+    if (decoded is! Map) {
+      return false;
+    }
+
+    final marker = Map<String, dynamic>.from(decoded);
+    final markerId = marker['id']?.toString();
+    if (markerId != null && stationId != null) {
+      _markerIdsByStationId[stationId] = markerId;
+    }
+
+    logger.info(
+      'Created Wayfinder marker',
+      fields: {
+        'stationId': stationId,
+        'markerId': markerId,
+        'packetType': payload['packetType'],
       },
     );
+    return markerId != null;
+  }
+
+  Future<bool> _updateMarker(
+    String markerId,
+    Map<String, dynamic> payload,
+  ) async {
+    final body = WayfinderMarkerMapper.updateBody(payload);
+    if (body.isEmpty) {
+      return true;
+    }
+
+    final decoded = await _sendJson(
+      method: 'PATCH',
+      url: markersApiUrl(config.mappingServerUrl).replace(
+        path: '/api/markers/$markerId',
+      ),
+      body: body,
+    );
+
+    if (decoded is! Map) {
+      return false;
+    }
+
+    logger.info(
+      'Updated Wayfinder marker',
+      fields: {
+        'stationId': payload['stationId'],
+        'markerId': markerId,
+        'packetType': payload['packetType'],
+      },
+    );
+    return true;
+  }
+
+  Future<String?> _findMarkerIdByName(
+    String stationId,
+    String? layerId,
+  ) async {
+    for (final marker in await listMarkers()) {
+      if (marker['name'] != stationId) continue;
+      if (layerId != null && marker['layerId']?.toString() != layerId) {
+        continue;
+      }
+      return marker['id']?.toString();
+    }
+    return null;
   }
 
   /// Ensures the simulator layer exists and clears its markers and zones.
   Future<String?> prepareSimulatorLayer(String layerName) async {
+    _markerIdsByStationId.clear();
     final layer = await findOrCreateLayer(layerName);
     final layerId = layer?['id']?.toString();
     if (layerId == null || layerId.isEmpty) {
@@ -331,6 +399,8 @@ class MappingClient {
         return client.deleteUrl(url);
       case 'POST':
         return client.postUrl(url);
+      case 'PATCH':
+        return client.patchUrl(url);
       default:
         throw ArgumentError.value(method, 'method', 'Unsupported HTTP method');
     }

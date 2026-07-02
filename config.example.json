@@ -2,7 +2,7 @@
   "packetSource": "kiss",
   "kissHost": "127.0.0.1",
   "kissPort": 8001,
-  "mappingServerUrl": "http://localhost:8080/api/aprs/position",
+  "mappingServerUrl": "http://localhost:18082",
   "authToken": null,
   "authHeader": "Authorization",
   "authScheme": "Bearer",

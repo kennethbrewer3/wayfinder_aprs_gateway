@@ -160,7 +160,7 @@ void main() {
       expect(config.kissPort, 8001);
       expect(config.packetSource, PacketSourceType.kiss);
       expect(config.mappingServerUrl.toString(),
-          'http://localhost:8080/api/aprs/position');
+          'http://localhost:18082');
       expect(config.authHeader, 'Authorization');
       expect(config.authScheme, 'Bearer');
     });

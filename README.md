@@ -40,8 +40,9 @@ cp .env.example .env
 
 ### 3. Configure `.env`
 
-Edit `.env` and set at least `APRS_MAPPING_SERVER_URL`. Defaults assume KISS is
-listening on the host at port `8001`.
+Edit `.env` and set at least `APRS_MAPPING_SERVER_URL` to your Wayfinder **web
+server** (port `18082`, not the Serverpod API port `18080`). Defaults assume
+KISS is listening on the host at port `8001`.
 
 | Variable | Description |
 | --- | --- |
@@ -50,7 +51,7 @@ listening on the host at port `8001`.
 | `APRS_SIMULATOR_LAYER_NAME` | Wayfinder layer for simulated markers/tracks (default `APRS Simulator`) |
 | `APRS_KISS_HOST` | KISS server hostname from inside the container (`host.docker.internal` reaches the SDR host) |
 | `APRS_KISS_PORT` | KISS TCP port (default `8001`) |
-| `APRS_MAPPING_SERVER_URL` | HTTP endpoint that accepts position reports |
+| `APRS_MAPPING_SERVER_URL` | Wayfinder **web server** base URL (REST API, default port `18082`) |
 | `APRS_AUTH_TOKEN` | Optional bearer token sent to the mapping server |
 | `APRS_LOG_LEVEL` | `debug`, `info`, `warn`, or `error` |
 
@@ -96,8 +97,8 @@ with all supported station types:
 Each mobile station supports `waypoints` (or legacy `route`): the simulator
 interpolates position between consecutive points at `speedKnots`. Set `"loop":
 false` to stop at the final waypoint instead of repeating. Mobile updates
-include `"isTracking": true` and a Wayfinder `transportationMode` in the JSON
-payload sent to the mapping server.
+create or update Wayfinder markers via `/api/markers` with `isTracking: true`
+when configured in the scenario.
 
 Each station supports `callsign`, optional `comment`, and optional `speedKnots`.
 Global emission interval is controlled by top-level `intervalSeconds`.
@@ -120,7 +121,8 @@ markers and zones on that layer, and assigns all simulated updates to it.
 Tracking trails inherit the marker layer on the Wayfinder server.
 
 Set `APRS_AUTH_TOKEN` to a Wayfinder REST API key (`wf_...`); it is sent as
-`Authorization: Bearer` for layer setup and position posts.
+`Authorization: Bearer` for REST requests. You can also use
+`APRS_AUTH_HEADER=X-API-Key` with an empty `APRS_AUTH_SCHEME`.
 
 ## Development
 

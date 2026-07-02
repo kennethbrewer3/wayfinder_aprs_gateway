@@ -3,20 +3,30 @@ import 'package:wayfinder_aprs_gateway/wayfinder_aprs_gateway.dart';
 
 void main() {
   group('MappingClient API URLs', () {
-    test('derives markers endpoint from APRS mapping URL', () {
-      final mappingUrl = Uri.parse('http://localhost:18080/api/aprs/position');
+    test('derives REST endpoints from Wayfinder web server URL', () {
+      final mappingUrl = Uri.parse('http://localhost:18082');
 
       expect(
         MappingClient.markersApiUrl(mappingUrl).toString(),
-        'http://localhost:18080/api/markers',
+        'http://localhost:18082/api/markers',
       );
       expect(
         MappingClient.layersApiUrl(mappingUrl).toString(),
-        'http://localhost:18080/api/layers',
+        'http://localhost:18082/api/layers',
       );
       expect(
         MappingClient.zonesApiUrl(mappingUrl).toString(),
-        'http://localhost:18080/api/zones',
+        'http://localhost:18082/api/zones',
+      );
+    });
+
+    test('derives REST endpoints when legacy APRS path is present', () {
+      final mappingUrl =
+          Uri.parse('http://localhost:18082/api/aprs/position');
+
+      expect(
+        MappingClient.markersApiUrl(mappingUrl).toString(),
+        'http://localhost:18082/api/markers',
       );
     });
   });
