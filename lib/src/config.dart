@@ -2,12 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'logger.dart';
+import 'packet_source_type.dart';
+import 'simulator/simulator_layer.dart';
 
 class GatewayConfig {
   GatewayConfig({
     required this.kissHost,
     required this.kissPort,
     required this.mappingServerUrl,
+    this.packetSource = PacketSourceType.kiss,
     this.authToken,
     this.authHeader = 'Authorization',
     this.authScheme = 'Bearer',
@@ -16,11 +19,14 @@ class GatewayConfig {
     this.maxRetryQueueSize = 1000,
     this.reconnectDelay = const Duration(seconds: 5),
     this.logLevel = LogLevel.info,
+    this.simulatorConfigPath,
+    this.simulatorLayerName = defaultSimulatorLayerName,
   });
 
   final String kissHost;
   final int kissPort;
   final Uri mappingServerUrl;
+  final PacketSourceType packetSource;
   final String? authToken;
   final String authHeader;
   final String authScheme;
@@ -29,6 +35,8 @@ class GatewayConfig {
   final int maxRetryQueueSize;
   final Duration reconnectDelay;
   final LogLevel logLevel;
+  final String? simulatorConfigPath;
+  final String simulatorLayerName;
 
   static Future<GatewayConfig> load({List<String> args = const []}) async {
     final configPath = _resolveConfigPath(args);
@@ -48,6 +56,9 @@ class GatewayConfig {
               'mappingServerUrl',
             ) ??
             'http://localhost:8080/api/aprs/position',
+      ),
+      packetSource: PacketSourceType.parse(
+        _envOrFile('APRS_PACKET_SOURCE', fileValues, 'packetSource'),
       ),
       authToken: _envOrFile('APRS_AUTH_TOKEN', fileValues, 'authToken'),
       authHeader:
@@ -96,6 +107,11 @@ class GatewayConfig {
       logLevel: LogLevel.fromString(
         _envOrFile('APRS_LOG_LEVEL', fileValues, 'logLevel') ?? 'info',
       ),
+      simulatorConfigPath:
+          _envOrFile('APRS_SIMULATOR_CONFIG', fileValues, 'simulatorConfig'),
+      simulatorLayerName:
+          _envOrFile('APRS_SIMULATOR_LAYER_NAME', fileValues, 'simulatorLayerName') ??
+          defaultSimulatorLayerName,
     );
   }
 

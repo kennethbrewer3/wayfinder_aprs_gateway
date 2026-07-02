@@ -18,6 +18,7 @@ config.json
 .env.*
 !.env.example
 !**/.env.example
+!**/.env.*.example
 
 # IDE
 .idea/

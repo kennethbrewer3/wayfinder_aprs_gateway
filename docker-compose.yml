@@ -5,6 +5,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
+      APRS_PACKET_SOURCE: ${APRS_PACKET_SOURCE:-kiss}
       APRS_KISS_HOST: host.docker.internal
       APRS_KISS_PORT: "8001"
       APRS_MAPPING_SERVER_URL: http://host.docker.internal:8080/api/aprs/position

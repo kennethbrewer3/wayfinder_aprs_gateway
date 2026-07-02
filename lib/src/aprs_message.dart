@@ -20,6 +20,8 @@ class AprsMessage {
     this.messageType,
     this.weather,
     this.telemetry,
+    this.isTracking,
+    this.transportationMode,
   });
 
   final AprsPacketType packetType;
@@ -35,6 +37,8 @@ class AprsMessage {
   final String? messageType;
   final Map<String, dynamic>? weather;
   final Map<String, dynamic>? telemetry;
+  final bool? isTracking;
+  final String? transportationMode;
 
   bool get hasPosition => latitude != null && longitude != null;
 
@@ -63,6 +67,8 @@ class AprsMessage {
       if (messageType != null) 'messageType': messageType,
       if (weather != null) 'weather': weather,
       if (telemetry != null) 'telemetry': telemetry,
+      if (isTracking == true) 'isTracking': true,
+      if (transportationMode != null) 'transportationMode': transportationMode,
       'rawAprs': rawAprs,
     };
   }

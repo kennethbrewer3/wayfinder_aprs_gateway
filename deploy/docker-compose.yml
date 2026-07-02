@@ -6,3 +6,6 @@ services:
       - "host.docker.internal:host-gateway"
     env_file:
       - .env
+    # Uncomment for simulator mode:
+    # volumes:
+    #   - ./simulator.json:/app/simulator.json:ro

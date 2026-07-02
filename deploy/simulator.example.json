@@ -1,0 +1,87 @@
+{
+  "intervalSeconds": 15,
+  "stations": [
+    {
+      "callsign": "W1CAR-9",
+      "type": "car",
+      "speedKnots": 45,
+      "comment": "I-66 westbound",
+      "waypoints": [
+        { "latitude": 38.8800, "longitude": -77.1000 },
+        { "latitude": 38.8850, "longitude": -77.1200 },
+        { "latitude": 38.8900, "longitude": -77.1450 },
+        { "latitude": 38.8950, "longitude": -77.1700 }
+      ]
+    },
+    {
+      "callsign": "W1BOAT-1",
+      "type": "boat",
+      "speedKnots": 12,
+      "comment": "Potomac run",
+      "waypoints": [
+        { "latitude": 38.8700, "longitude": -77.0500 },
+        { "latitude": 38.8750, "longitude": -77.0400 },
+        { "latitude": 38.8800, "longitude": -77.0300 }
+      ]
+    },
+    {
+      "callsign": "W1HIKE-7",
+      "type": "hiker",
+      "speedKnots": 3,
+      "comment": "AT section hike",
+      "waypoints": [
+        { "latitude": 38.9500, "longitude": -77.2000 },
+        { "latitude": 38.9550, "longitude": -77.1950 },
+        { "latitude": 38.9600, "longitude": -77.1900 },
+        { "latitude": 38.9650, "longitude": -77.1850 }
+      ]
+    },
+    {
+      "callsign": "N12345",
+      "type": "aircraft",
+      "speedKnots": 140,
+      "altitudeMeters": 3500,
+      "comment": "Pattern work",
+      "waypoints": [
+        { "latitude": 39.0000, "longitude": -77.0500 },
+        { "latitude": 38.9800, "longitude": -77.0800 },
+        { "latitude": 38.9600, "longitude": -77.1100 },
+        { "latitude": 38.9800, "longitude": -77.1400 }
+      ]
+    },
+    {
+      "callsign": "W1TRN-1",
+      "type": "train",
+      "speedKnots": 35,
+      "comment": "MARC local",
+      "waypoints": [
+        { "latitude": 38.9200, "longitude": -77.2100 },
+        { "latitude": 38.9300, "longitude": -77.1900 },
+        { "latitude": 38.9400, "longitude": -77.1700 }
+      ]
+    },
+    {
+      "callsign": "WX0ABC",
+      "type": "weather",
+      "latitude": 38.8765,
+      "longitude": -77.1233,
+      "weather": {
+        "windDirection": 225,
+        "windSpeedKnots": 12,
+        "windGustKnots": 18,
+        "temperatureF": 72,
+        "humidity": 55,
+        "pressureMb": 1013.8,
+        "rain1hInches": 0.01
+      },
+      "comment": "Backyard WX"
+    },
+    {
+      "callsign": "W1DIGI",
+      "type": "repeater",
+      "latitude": 38.9000,
+      "longitude": -77.1500,
+      "comment": "Wide area digi PHG5450"
+    }
+  ]
+}

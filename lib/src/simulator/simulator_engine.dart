@@ -1,0 +1,204 @@
+import 'dart:math' as math;
+
+import '../aprs_message.dart';
+import '../aprs_packet.dart';
+import 'aprs_info_builder.dart';
+import 'simulator_config.dart';
+import 'waypoint_path.dart';
+
+class SimulatorEngine {
+  SimulatorEngine(this.config)
+      : _states = config.stations.map(_StationState.new).toList();
+
+  final SimulatorConfig config;
+  final List<_StationState> _states;
+
+  List<AprsPacket> buildPackets() {
+    final packets = <AprsPacket>[];
+
+    for (final state in _states) {
+      state.advance(config.interval);
+      packets.add(state.buildPacket());
+    }
+
+    return packets;
+  }
+}
+
+class _StationState {
+  _StationState(SimulatorStationConfig config)
+      : config = config,
+        latitude = config.latitude,
+        longitude = config.longitude,
+        course = config.course ?? 0,
+        _waypointPath = _buildWaypointPath(config);
+
+  final SimulatorStationConfig config;
+  double latitude;
+  double longitude;
+  int course;
+  final WaypointPath? _waypointPath;
+
+  static WaypointPath? _buildWaypointPath(SimulatorStationConfig config) {
+    if (config.waypoints.length < 2) return null;
+    return WaypointPath(
+      config.waypoints,
+      loop: config.loopWaypoints,
+    );
+  }
+
+  void advance(Duration interval) {
+    if (!config.type.isMobile) return;
+
+    final distanceKm =
+        config.resolvedSpeedKnots * 1.852 * (interval.inSeconds / 3600);
+
+    if (_waypointPath != null) {
+      _waypointPath.advance(distanceKm);
+      final position = _waypointPath.position;
+      latitude = position.latitude;
+      longitude = position.longitude;
+      course = _waypointPath.course;
+      return;
+    }
+
+    _advanceByCourse(distanceKm);
+  }
+
+  void _advanceByCourse(double distanceKm) {
+    final moved = _move(latitude, longitude, course.toDouble(), distanceKm);
+    latitude = moved.latitude;
+    longitude = moved.longitude;
+  }
+
+  AprsPacket buildPacket() {
+    return AprsPacket(
+      source: config.callsign,
+      destination: config.destination,
+      path: config.path,
+      rawAprs: _buildRawAprs(),
+      message: _buildMessage(),
+    );
+  }
+
+  String _buildRawAprs() {
+    switch (config.type) {
+      case SimulatorStationType.weather:
+        return AprsInfoBuilder.weatherPosition(
+          latitude: latitude,
+          longitude: longitude,
+          weather: config.weather,
+          comment: config.comment,
+        );
+      case SimulatorStationType.car:
+      case SimulatorStationType.boat:
+      case SimulatorStationType.aircraft:
+      case SimulatorStationType.hiker:
+      case SimulatorStationType.train:
+      case SimulatorStationType.repeater:
+        return AprsInfoBuilder.uncompressedPosition(
+          latitude: latitude,
+          longitude: longitude,
+          symbolTable: config.resolvedSymbolTable,
+          symbolCode: config.resolvedSymbolCode,
+          comment: config.comment,
+        );
+    }
+  }
+
+  AprsMessage _buildMessage() {
+    switch (config.type) {
+      case SimulatorStationType.weather:
+        return AprsMessage(
+          packetType: AprsPacketType.weather,
+          format: 'weather-position',
+          latitude: latitude,
+          longitude: longitude,
+          symbolTable: '/',
+          symbolCode: '_',
+          comment: config.comment,
+          weather: {
+            'windDirection': config.weather.windDirection,
+            'windSpeed': config.weather.windSpeedKnots * 0.514444,
+            'windGust': config.weather.windGustKnots * 0.514444,
+            'temperature': (config.weather.temperatureF - 32) / 1.8,
+            'humidity':
+                config.weather.humidity == 0 ? 100 : config.weather.humidity,
+            'pressure': config.weather.pressureMb,
+            'rain1h': config.weather.rain1hInches * 25.4,
+          },
+        );
+      case SimulatorStationType.car:
+      case SimulatorStationType.boat:
+      case SimulatorStationType.aircraft:
+      case SimulatorStationType.hiker:
+      case SimulatorStationType.train:
+        return AprsMessage(
+          packetType: AprsPacketType.position,
+          format: 'simulator-${config.type.name}',
+          latitude: latitude,
+          longitude: longitude,
+          symbolTable: config.resolvedSymbolTable,
+          symbolCode: config.resolvedSymbolCode,
+          comment: config.comment,
+          course: course,
+          speed: config.resolvedSpeedKnots,
+          altitude: config.type == SimulatorStationType.aircraft
+              ? config.altitudeMeters
+              : null,
+          isTracking: true,
+          transportationMode: config.transportationMode,
+        );
+      case SimulatorStationType.repeater:
+        return AprsMessage(
+          packetType: AprsPacketType.position,
+          format: 'simulator-repeater',
+          latitude: latitude,
+          longitude: longitude,
+          symbolTable: config.resolvedSymbolTable,
+          symbolCode: config.resolvedSymbolCode,
+          comment: config.comment,
+        );
+    }
+  }
+}
+
+({double latitude, double longitude}) _move(
+  double latitude,
+  double longitude,
+  double bearingDegrees,
+  double distanceKm,
+) {
+  final bearing = degreesToRadians(bearingDegrees);
+  final latRadians = degreesToRadians(latitude);
+  final angularDistance = distanceKm / 6371.0;
+
+  final newLat = math.asin(
+    math.sin(latRadians) * math.cos(angularDistance) +
+        math.cos(latRadians) *
+            math.sin(angularDistance) *
+            math.cos(bearing),
+  );
+
+  final newLon = degreesToRadians(longitude) +
+      math.atan2(
+        math.sin(bearing) * math.sin(angularDistance) * math.cos(latRadians),
+        math.cos(angularDistance) - math.sin(latRadians) * math.sin(newLat),
+      );
+
+  return (
+    latitude: newLat * 180 / math.pi,
+    longitude: _normalizeLongitude(newLon * 180 / math.pi),
+  );
+}
+
+double _normalizeLongitude(double longitude) {
+  var normalized = longitude;
+  while (normalized <= -180) {
+    normalized += 360;
+  }
+  while (normalized > 180) {
+    normalized -= 360;
+  }
+  return normalized;
+}

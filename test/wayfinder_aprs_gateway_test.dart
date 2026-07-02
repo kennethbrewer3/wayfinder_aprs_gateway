@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:wayfinder_aprs_gateway/wayfinder_aprs_gateway.dart';
 import 'package:test/test.dart';
 
@@ -156,10 +158,74 @@ void main() {
 
       expect(config.kissHost, '127.0.0.1');
       expect(config.kissPort, 8001);
+      expect(config.packetSource, PacketSourceType.kiss);
       expect(config.mappingServerUrl.toString(),
           'http://localhost:8080/api/aprs/position');
       expect(config.authHeader, 'Authorization');
       expect(config.authScheme, 'Bearer');
+    });
+
+    test('loads packet source from config file', () async {
+      final configFile = File(
+        '${Directory.systemTemp.path}/wayfinder_aprs_gateway_config_test.json',
+      );
+      configFile.writeAsStringSync('{"packetSource":"simulator"}');
+      addTearDown(() {
+        if (configFile.existsSync()) {
+          configFile.deleteSync();
+        }
+      });
+
+      final config = await GatewayConfig.load(
+        args: ['--config', configFile.path],
+      );
+
+      expect(config.packetSource, PacketSourceType.simulator);
+    });
+  });
+
+  group('packet source type', () {
+    test('parses supported APRS_PACKET_SOURCE values', () {
+      expect(PacketSourceType.parse(null), PacketSourceType.kiss);
+      expect(PacketSourceType.parse('kiss'), PacketSourceType.kiss);
+      expect(PacketSourceType.parse('Direwolf'), PacketSourceType.kiss);
+      expect(PacketSourceType.parse('simulator'), PacketSourceType.simulator);
+      expect(PacketSourceType.parse('aprs-is'), PacketSourceType.aprsis);
+    });
+
+    test('rejects unknown APRS_PACKET_SOURCE values', () {
+      expect(
+        () => PacketSourceType.parse('not-a-source'),
+        throwsArgumentError,
+      );
+    });
+  });
+
+  group('simulator packet source', () {
+    test('emits provided packets to listeners', () async {
+      final frame = Ax25Frame(
+        destination: 'APRS',
+        source: 'N0CALL-1',
+        path: const [],
+        info: '!3852.59N/07707.40W>Test comment',
+      );
+      final message = AprsParser.parse(frame)!;
+      final expected = AprsPacket(
+        source: frame.source,
+        destination: frame.destination,
+        path: frame.path,
+        rawAprs: frame.info,
+        message: message,
+      );
+
+      final source = SimulatorPacketSource.fromList([expected]);
+      final received = <AprsPacket>[];
+      source.packets.listen(received.add);
+
+      await source.start();
+
+      expect(received, [expected]);
+      expect(received.single.toPayload()['stationId'], 'N0CALL-1');
     });
   });
 }
