@@ -27,6 +27,10 @@ class DuplicateFilter {
     final packetType = payload['packetType']?.toString() ?? '';
     final rawAprs = payload['rawAprs']?.toString() ?? '';
 
+    if (packetType == 'weather') {
+      return '$stationId|$packetType|${rawAprs.hashCode}';
+    }
+
     if (payload.containsKey('latitude') && payload.containsKey('longitude')) {
       final lat = (payload['latitude'] as num).toDouble();
       final lon = (payload['longitude'] as num).toDouble();

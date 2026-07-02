@@ -102,8 +102,9 @@ when configured in the scenario.
 
 Each station supports `callsign`, optional `comment`, and optional `speedKnots`.
 Weather stations accept a static `weather` object or a `weatherSequence` array that
-cycles on each emission (`loopWeather` defaults to `true`). The gateway writes all
-weather telemetry into the Wayfinder marker `notes` field as formatted text.
+cycles on each emission (`loopWeather` defaults to `true`). The gateway creates
+weather station markers with `icon: weather_station` and stores readings in the
+marker `weatherJson` field for the Wayfinder weather station UI.
 Global emission interval is controlled by top-level `intervalSeconds`.
 
 Example Docker setup:

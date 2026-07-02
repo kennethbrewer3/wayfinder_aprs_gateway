@@ -80,7 +80,16 @@ class MappingClient {
     String markerId,
     Map<String, dynamic> payload,
   ) async {
-    final body = WayfinderMarkerMapper.updateBody(payload);
+    String? existingWeatherJson;
+    if (payload['packetType']?.toString() == 'weather') {
+      final existing = await getMarker(markerId);
+      existingWeatherJson = existing?['weatherJson']?.toString();
+    }
+
+    final body = WayfinderMarkerMapper.updateBody(
+      payload,
+      existingWeatherJson: existingWeatherJson,
+    );
     if (body.isEmpty) {
       return true;
     }
@@ -164,6 +173,17 @@ class MappingClient {
         },
       );
     }
+  }
+
+  Future<Map<String, dynamic>?> getMarker(String id) async {
+    final decoded = await _sendJson(
+      method: 'GET',
+      url: markersApiUrl(config.mappingServerUrl).replace(
+        path: '/api/markers/$id',
+      ),
+    );
+    if (decoded is! Map) return null;
+    return Map<String, dynamic>.from(decoded);
   }
 
   Future<Map<String, dynamic>?> getZone(String id) async {
