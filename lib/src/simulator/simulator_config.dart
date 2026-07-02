@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import '../wayfinder_transportation_modes.dart';
 import 'waypoint_path.dart';
 
 enum SimulatorStationType {
+  mobile,
   car,
   boat,
   aircraft,
@@ -13,7 +15,14 @@ enum SimulatorStationType {
   repeater;
 
   static SimulatorStationType parse(String value) {
-    switch (value.trim().toLowerCase()) {
+    final key = value.trim();
+    final lower = key.toLowerCase();
+
+    if (WayfinderTransportationModes.contains(key)) {
+      return SimulatorStationType.mobile;
+    }
+
+    switch (lower) {
       case 'car':
       case 'vehicle':
         return SimulatorStationType.car;
@@ -37,22 +46,24 @@ enum SimulatorStationType {
         throw ArgumentError.value(
           value,
           'type',
-          'Supported values: car, boat, aircraft, hiker, train, weather, repeater',
+          'Supported values: Wayfinder transportation modes, car, boat, '
+          'aircraft, hiker, train, weather, repeater',
         );
     }
   }
 
   bool get isMobile {
     switch (this) {
+      case SimulatorStationType.weather:
+      case SimulatorStationType.repeater:
+        return false;
+      case SimulatorStationType.mobile:
       case SimulatorStationType.car:
       case SimulatorStationType.boat:
       case SimulatorStationType.aircraft:
       case SimulatorStationType.hiker:
       case SimulatorStationType.train:
         return true;
-      case SimulatorStationType.weather:
-      case SimulatorStationType.repeater:
-        return false;
     }
   }
 }
@@ -120,6 +131,7 @@ class SimulatorStationConfig {
     this.destination = 'APRS',
     this.path = const [],
     this.comment,
+    this.color,
     this.symbolTable,
     this.symbolCode,
     this.course,
@@ -131,10 +143,13 @@ class SimulatorStationConfig {
     this.weatherSequence = const [],
     this.weatherLoop = true,
     this.intervalSeconds,
+    this.transportationModeOverride,
+    this.typeName = '',
   }) : weather = weather ?? SimulatorWeatherSettings();
 
   factory SimulatorStationConfig.fromJson(Map<String, dynamic> json) {
-    final type = SimulatorStationType.parse(json['type'] as String);
+    final typeName = json['type'] as String;
+    final type = SimulatorStationType.parse(typeName);
     final waypoints = _optionalWaypoints(json['waypoints'] ?? json['route']);
 
     final latitude = waypoints.isNotEmpty
@@ -147,11 +162,13 @@ class SimulatorStationConfig {
     return SimulatorStationConfig(
       callsign: json['callsign'] as String,
       type: type,
+      typeName: typeName,
       latitude: latitude,
       longitude: longitude,
       destination: json['destination'] as String? ?? 'APRS',
       path: _optionalStringList(json, 'path'),
       comment: json['comment'] as String?,
+      color: json['color'] as String?,
       symbolTable: json['symbolTable'] as String?,
       symbolCode: json['symbolCode'] as String?,
       course: _optionalInt(json, 'course'),
@@ -169,16 +186,19 @@ class SimulatorStationConfig {
           ? json['loopWeather'] as bool
           : true,
       intervalSeconds: _optionalInt(json, 'intervalSeconds'),
+      transportationModeOverride: _optionalTransportationMode(json),
     );
   }
 
   final String callsign;
   final SimulatorStationType type;
+  final String typeName;
   final double latitude;
   final double longitude;
   final String destination;
   final List<String> path;
   final String? comment;
+  final String? color;
   final String? symbolTable;
   final String? symbolCode;
   final int? course;
@@ -190,6 +210,7 @@ class SimulatorStationConfig {
   final List<SimulatorWeatherSettings> weatherSequence;
   final bool weatherLoop;
   final int? intervalSeconds;
+  final String? transportationModeOverride;
 
   SimulatorWeatherSettings get initialWeather =>
       weatherSequence.isNotEmpty ? weatherSequence.first : weather;
@@ -197,9 +218,15 @@ class SimulatorStationConfig {
   bool get isTracking => type.isMobile;
 
   String? get transportationMode {
+    if (transportationModeOverride != null) {
+      return transportationModeOverride;
+    }
+    if (WayfinderTransportationModes.contains(typeName)) {
+      return typeName;
+    }
+
     switch (type) {
       case SimulatorStationType.car:
-      case SimulatorStationType.train:
         return 'landVehicle';
       case SimulatorStationType.boat:
         return 'watercraft';
@@ -207,17 +234,52 @@ class SimulatorStationConfig {
         return 'aircraft';
       case SimulatorStationType.hiker:
         return 'onFoot';
+      case SimulatorStationType.train:
+        return 'train';
+      case SimulatorStationType.mobile:
       case SimulatorStationType.weather:
       case SimulatorStationType.repeater:
         return null;
     }
   }
 
-  String get resolvedSymbolTable => symbolTable ?? defaultSymbolTable(type);
+  String get resolvedSymbolTable {
+    if (symbolTable != null) {
+      return symbolTable!;
+    }
+    if (transportationMode == 'train') {
+      return r'\';
+    }
+    return '/';
+  }
 
-  String get resolvedSymbolCode => symbolCode ?? defaultSymbolCode(type);
+  String get resolvedSymbolCode {
+    if (symbolCode != null) {
+      return symbolCode!;
+    }
 
-  int get resolvedSpeedKnots => speedKnots ?? defaultSpeedKnots(type);
+    return switch (transportationMode) {
+      'onFoot' => '[',
+      'horse' => '[',
+      'bike' => 'b',
+      'motorcycle' => '<',
+      'atv' => '<',
+      'landVehicle' => '>',
+      'truck' || 'bus' || 'rv' || 'farmVehicle' => 'k',
+      'train' => 'L',
+      'ambulance' => 'a',
+      'fireTruck' => 'f',
+      'canoe' || 'watercraft' => 's',
+      'sailboat' => 'Y',
+      'aircraft' => '^',
+      'helicopter' => 'n',
+      'glider' => '^',
+      'balloon' => 'O',
+      _ => defaultSymbolCode(type),
+    };
+  }
+
+  int get resolvedSpeedKnots => speedKnots ?? defaultSpeedKnots(type, transportationMode);
 
   static String defaultSymbolTable(SimulatorStationType type) {
     switch (type) {
@@ -240,6 +302,8 @@ class SimulatorStationConfig {
         return '[';
       case SimulatorStationType.train:
         return 'L';
+      case SimulatorStationType.mobile:
+        return '>';
       case SimulatorStationType.weather:
         return '_';
       case SimulatorStationType.repeater:
@@ -247,7 +311,27 @@ class SimulatorStationConfig {
     }
   }
 
-  static int defaultSpeedKnots(SimulatorStationType type) {
+  static int defaultSpeedKnots(
+    SimulatorStationType type,
+    String? transportationMode,
+  ) {
+    if (transportationMode != null) {
+      return switch (transportationMode) {
+        'onFoot' || 'horse' => 3,
+        'bike' => 12,
+        'motorcycle' || 'atv' => 35,
+        'landVehicle' || 'truck' || 'bus' || 'rv' || 'farmVehicle' => 35,
+        'train' => 40,
+        'ambulance' || 'fireTruck' => 45,
+        'canoe' => 4,
+        'watercraft' => 15,
+        'sailboat' => 8,
+        'aircraft' || 'helicopter' || 'glider' => 90,
+        'balloon' => 5,
+        _ => 20,
+      };
+    }
+
     switch (type) {
       case SimulatorStationType.car:
         return 35;
@@ -259,6 +343,8 @@ class SimulatorStationConfig {
         return 3;
       case SimulatorStationType.train:
         return 40;
+      case SimulatorStationType.mobile:
+        return 20;
       case SimulatorStationType.weather:
       case SimulatorStationType.repeater:
         return 0;
@@ -368,4 +454,15 @@ List<SimulatorWeatherSettings> _optionalWeatherSequence(Object? value) {
         ),
       )
       .toList();
+}
+
+String? _optionalTransportationMode(Map<String, dynamic> json) {
+  final explicit = json['transportationMode'];
+  if (explicit is String && explicit.isNotEmpty) {
+    if (!WayfinderTransportationModes.contains(explicit)) {
+      throw FormatException('Invalid transportationMode in simulator config');
+    }
+    return explicit;
+  }
+  return null;
 }

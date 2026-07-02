@@ -76,6 +76,36 @@ void main() {
       expect(body['notes'], 'Test');
     });
 
+    test('builds repeater marker bodies with radio_repeater icon', () {
+      final body = WayfinderMarkerMapper.createBody({
+        'stationId': 'W1DIGI',
+        'packetType': 'repeater',
+        'latitude': 38.9,
+        'longitude': -77.15,
+        'comment': 'Wide area digi PHG5450',
+        'color': '#6b7280',
+      });
+
+      expect(body['icon'], 'radio_repeater');
+      expect(body['isTracking'], false);
+      expect(body['notes'], 'Wide area digi PHG5450');
+      expect(body['color'], '#6b7280');
+    });
+
+    test('builds repeater marker bodies from APRS digipeater symbol', () {
+      final body = WayfinderMarkerMapper.createBody({
+        'stationId': 'W1DIGI',
+        'packetType': 'position',
+        'latitude': 38.9,
+        'longitude': -77.15,
+        'symbolTable': '/',
+        'symbolCode': '#',
+      });
+
+      expect(body['icon'], 'radio_repeater');
+      expect(body['isTracking'], false);
+    });
+
     test('builds weather station marker bodies with weatherJson', () {
       final body = WayfinderMarkerMapper.createBody({
         'stationId': 'WX0ABC',

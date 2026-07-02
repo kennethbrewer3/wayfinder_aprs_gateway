@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'aprs_message.dart';
+import 'aprs_repeater.dart';
 import 'ax25.dart';
 import 'base91.dart';
 
@@ -86,9 +87,18 @@ class AprsParser {
       comment = remainder.trim().isEmpty ? null : remainder.trim();
     }
 
+    final packetType = _packetTypeForPosition(
+      symbolCode: symbolCode,
+      weather: weather,
+    );
+
     return AprsMessage(
-      packetType: weather == null ? AprsPacketType.position : AprsPacketType.weather,
-      format: weather == null ? 'uncompressed' : 'weather-position',
+      packetType: packetType,
+      format: weather == null
+          ? (packetType == AprsPacketType.repeater
+              ? 'repeater'
+              : 'uncompressed')
+          : 'weather-position',
       latitude: lat,
       longitude: lon,
       symbolTable: symbolTable,
@@ -136,8 +146,12 @@ class AprsParser {
     }
 
     return AprsMessage(
-      packetType: AprsPacketType.position,
-      format: 'compressed',
+      packetType: AprsRepeater.isSymbol(symbolCode: symbol)
+          ? AprsPacketType.repeater
+          : AprsPacketType.position,
+      format: AprsRepeater.isSymbol(symbolCode: symbol)
+          ? 'repeater'
+          : 'compressed',
       latitude: latitude,
       longitude: longitude,
       symbolTable: symbolTable,
@@ -461,6 +475,19 @@ class AprsParser {
     var decimal = degrees + minutes / 60.0;
     if (hemisphere == 'W') decimal = -decimal;
     return decimal;
+  }
+
+  static AprsPacketType _packetTypeForPosition({
+    required String symbolCode,
+    required Map<String, dynamic>? weather,
+  }) {
+    if (weather != null) {
+      return AprsPacketType.weather;
+    }
+    if (AprsRepeater.isSymbol(symbolCode: symbolCode)) {
+      return AprsPacketType.repeater;
+    }
+    return AprsPacketType.position;
   }
 }
 

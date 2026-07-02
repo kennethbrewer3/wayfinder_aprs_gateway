@@ -2,67 +2,501 @@
   "intervalSeconds": 15,
   "stations": [
     {
-      "callsign": "W1CAR-9",
-      "type": "car",
-      "speedKnots": 45,
-      "comment": "I-66 westbound",
-      "waypoints": [
-        { "latitude": 38.8800, "longitude": -77.1000 },
-        { "latitude": 38.8850, "longitude": -77.1200 },
-        { "latitude": 38.8900, "longitude": -77.1450 },
-        { "latitude": 38.8950, "longitude": -77.1700 }
-      ]
-    },
-    {
-      "callsign": "W1BOAT-1",
-      "type": "boat",
-      "speedKnots": 12,
-      "comment": "Potomac run",
-      "waypoints": [
-        { "latitude": 38.8700, "longitude": -77.0500 },
-        { "latitude": 38.8750, "longitude": -77.0400 },
-        { "latitude": 38.8800, "longitude": -77.0300 }
-      ]
-    },
-    {
-      "callsign": "W1HIKE-7",
-      "type": "hiker",
+      "callsign": "W1FOOT-1",
+      "type": "onFoot",
+      "color": "#16a34a",
       "speedKnots": 3,
       "comment": "AT section hike",
       "waypoints": [
-        { "latitude": 38.9500, "longitude": -77.2000 },
-        { "latitude": 38.9550, "longitude": -77.1950 },
-        { "latitude": 38.9600, "longitude": -77.1900 },
-        { "latitude": 38.9650, "longitude": -77.1850 }
+        {
+          "latitude": 38.95,
+          "longitude": -77.2
+        },
+        {
+          "latitude": 38.955,
+          "longitude": -77.195
+        },
+        {
+          "latitude": 38.96,
+          "longitude": -77.19
+        },
+        {
+          "latitude": 38.965,
+          "longitude": -77.185
+        }
       ]
     },
     {
-      "callsign": "N12345",
-      "type": "aircraft",
-      "speedKnots": 140,
-      "altitudeMeters": 3500,
-      "comment": "Pattern work",
+      "callsign": "W1HRS-1",
+      "type": "horse",
+      "color": "#92400e",
+      "speedKnots": 8,
+      "comment": "Bridle trail",
       "waypoints": [
-        { "latitude": 39.0000, "longitude": -77.0500 },
-        { "latitude": 38.9800, "longitude": -77.0800 },
-        { "latitude": 38.9600, "longitude": -77.1100 },
-        { "latitude": 38.9800, "longitude": -77.1400 }
+        {
+          "latitude": 38.945,
+          "longitude": -77.16
+        },
+        {
+          "latitude": 38.948,
+          "longitude": -77.155
+        },
+        {
+          "latitude": 38.952,
+          "longitude": -77.148
+        },
+        {
+          "latitude": 38.956,
+          "longitude": -77.142
+        }
+      ]
+    },
+    {
+      "callsign": "W1BIKE-3",
+      "type": "bike",
+      "color": "#059669",
+      "speedKnots": 12,
+      "comment": "Capital Crescent Trail",
+      "waypoints": [
+        {
+          "latitude": 38.93,
+          "longitude": -77.09
+        },
+        {
+          "latitude": 38.935,
+          "longitude": -77.085
+        },
+        {
+          "latitude": 38.94,
+          "longitude": -77.078
+        },
+        {
+          "latitude": 38.945,
+          "longitude": -77.072
+        }
+      ]
+    },
+    {
+      "callsign": "W1MOTO-5",
+      "type": "motorcycle",
+      "color": "#ea580c",
+      "speedKnots": 55,
+      "comment": "Skyline Drive run",
+      "waypoints": [
+        {
+          "latitude": 38.91,
+          "longitude": -77.22
+        },
+        {
+          "latitude": 38.915,
+          "longitude": -77.21
+        },
+        {
+          "latitude": 38.92,
+          "longitude": -77.2
+        },
+        {
+          "latitude": 38.925,
+          "longitude": -77.19
+        }
+      ]
+    },
+    {
+      "callsign": "W1ATV-2",
+      "type": "atv",
+      "color": "#f97316",
+      "speedKnots": 25,
+      "comment": "Off-road loop",
+      "waypoints": [
+        {
+          "latitude": 38.87,
+          "longitude": -77.22
+        },
+        {
+          "latitude": 38.875,
+          "longitude": -77.215
+        },
+        {
+          "latitude": 38.88,
+          "longitude": -77.208
+        },
+        {
+          "latitude": 38.885,
+          "longitude": -77.2
+        }
+      ]
+    },
+    {
+      "callsign": "W1CAR-9",
+      "type": "landVehicle",
+      "color": "#2563eb",
+      "speedKnots": 45,
+      "comment": "I-66 westbound",
+      "waypoints": [
+        {
+          "latitude": 38.88,
+          "longitude": -77.1
+        },
+        {
+          "latitude": 38.885,
+          "longitude": -77.12
+        },
+        {
+          "latitude": 38.89,
+          "longitude": -77.145
+        },
+        {
+          "latitude": 38.895,
+          "longitude": -77.17
+        }
+      ]
+    },
+    {
+      "callsign": "W1TRK-4",
+      "type": "truck",
+      "color": "#1d4ed8",
+      "speedKnots": 40,
+      "comment": "I-495 freight lane",
+      "waypoints": [
+        {
+          "latitude": 38.9,
+          "longitude": -77.08
+        },
+        {
+          "latitude": 38.905,
+          "longitude": -77.1
+        },
+        {
+          "latitude": 38.91,
+          "longitude": -77.125
+        },
+        {
+          "latitude": 38.915,
+          "longitude": -77.15
+        }
+      ]
+    },
+    {
+      "callsign": "W1BUS-1",
+      "type": "bus",
+      "color": "#4338ca",
+      "speedKnots": 22,
+      "comment": "Metrobus 38B",
+      "waypoints": [
+        {
+          "latitude": 38.887,
+          "longitude": -77.095
+        },
+        {
+          "latitude": 38.892,
+          "longitude": -77.088
+        },
+        {
+          "latitude": 38.897,
+          "longitude": -77.08
+        },
+        {
+          "latitude": 38.902,
+          "longitude": -77.072
+        }
+      ]
+    },
+    {
+      "callsign": "W1RV-7",
+      "type": "rv",
+      "color": "#7c3aed",
+      "speedKnots": 30,
+      "comment": "Campground hop",
+      "waypoints": [
+        {
+          "latitude": 38.86,
+          "longitude": -77.18
+        },
+        {
+          "latitude": 38.865,
+          "longitude": -77.17
+        },
+        {
+          "latitude": 38.87,
+          "longitude": -77.16
+        },
+        {
+          "latitude": 38.875,
+          "longitude": -77.15
+        }
       ]
     },
     {
       "callsign": "W1TRN-1",
       "type": "train",
+      "color": "#64748b",
       "speedKnots": 35,
       "comment": "MARC local",
       "waypoints": [
-        { "latitude": 38.9200, "longitude": -77.2100 },
-        { "latitude": 38.9300, "longitude": -77.1900 },
-        { "latitude": 38.9400, "longitude": -77.1700 }
+        {
+          "latitude": 38.92,
+          "longitude": -77.21
+        },
+        {
+          "latitude": 38.93,
+          "longitude": -77.19
+        },
+        {
+          "latitude": 38.94,
+          "longitude": -77.17
+        }
       ]
+    },
+    {
+      "callsign": "W1EMS-9",
+      "type": "ambulance",
+      "color": "#dc2626",
+      "speedKnots": 48,
+      "comment": "Hospital transfer",
+      "waypoints": [
+        {
+          "latitude": 38.905,
+          "longitude": -77.04
+        },
+        {
+          "latitude": 38.908,
+          "longitude": -77.05
+        },
+        {
+          "latitude": 38.912,
+          "longitude": -77.062
+        },
+        {
+          "latitude": 38.916,
+          "longitude": -77.075
+        }
+      ]
+    },
+    {
+      "callsign": "W1FD-1",
+      "type": "fireTruck",
+      "color": "#b91c1c",
+      "speedKnots": 42,
+      "comment": "Station response",
+      "waypoints": [
+        {
+          "latitude": 38.898,
+          "longitude": -77.13
+        },
+        {
+          "latitude": 38.901,
+          "longitude": -77.118
+        },
+        {
+          "latitude": 38.904,
+          "longitude": -77.105
+        },
+        {
+          "latitude": 38.907,
+          "longitude": -77.092
+        }
+      ]
+    },
+    {
+      "callsign": "W1FARM-2",
+      "type": "farmVehicle",
+      "color": "#ca8a04",
+      "speedKnots": 12,
+      "comment": "Field service loop",
+      "waypoints": [
+        {
+          "latitude": 38.84,
+          "longitude": -77.24
+        },
+        {
+          "latitude": 38.845,
+          "longitude": -77.235
+        },
+        {
+          "latitude": 38.85,
+          "longitude": -77.228
+        },
+        {
+          "latitude": 38.855,
+          "longitude": -77.22
+        }
+      ]
+    },
+    {
+      "callsign": "W1CAN-3",
+      "type": "canoe",
+      "color": "#0891b2",
+      "speedKnots": 4,
+      "comment": "Potomac paddle",
+      "waypoints": [
+        {
+          "latitude": 38.872,
+          "longitude": -77.055
+        },
+        {
+          "latitude": 38.874,
+          "longitude": -77.048
+        },
+        {
+          "latitude": 38.876,
+          "longitude": -77.042
+        }
+      ]
+    },
+    {
+      "callsign": "W1BOAT-1",
+      "type": "watercraft",
+      "color": "#0284c7",
+      "speedKnots": 12,
+      "comment": "Potomac run",
+      "waypoints": [
+        {
+          "latitude": 38.87,
+          "longitude": -77.05
+        },
+        {
+          "latitude": 38.875,
+          "longitude": -77.04
+        },
+        {
+          "latitude": 38.88,
+          "longitude": -77.03
+        }
+      ]
+    },
+    {
+      "callsign": "W1SAIL-4",
+      "type": "sailboat",
+      "color": "#0ea5e9",
+      "speedKnots": 8,
+      "comment": "Tidal basin tack",
+      "waypoints": [
+        {
+          "latitude": 38.868,
+          "longitude": -77.02
+        },
+        {
+          "latitude": 38.872,
+          "longitude": -77.015
+        },
+        {
+          "latitude": 38.876,
+          "longitude": -77.01
+        },
+        {
+          "latitude": 38.88,
+          "longitude": -77.005
+        }
+      ]
+    },
+    {
+      "callsign": "N12345",
+      "type": "aircraft",
+      "color": "#8b5cf6",
+      "speedKnots": 140,
+      "comment": "Pattern work",
+      "waypoints": [
+        {
+          "latitude": 39.0,
+          "longitude": -77.05
+        },
+        {
+          "latitude": 38.98,
+          "longitude": -77.08
+        },
+        {
+          "latitude": 38.96,
+          "longitude": -77.11
+        },
+        {
+          "latitude": 38.98,
+          "longitude": -77.14
+        }
+      ],
+      "altitudeMeters": 3500
+    },
+    {
+      "callsign": "W1HELI-2",
+      "type": "helicopter",
+      "color": "#7c3aed",
+      "speedKnots": 75,
+      "comment": "Medevac orbit",
+      "waypoints": [
+        {
+          "latitude": 38.915,
+          "longitude": -77.06
+        },
+        {
+          "latitude": 38.92,
+          "longitude": -77.07
+        },
+        {
+          "latitude": 38.915,
+          "longitude": -77.08
+        },
+        {
+          "latitude": 38.91,
+          "longitude": -77.07
+        }
+      ],
+      "altitudeMeters": 800
+    },
+    {
+      "callsign": "W1GLD-1",
+      "type": "glider",
+      "color": "#a855f7",
+      "speedKnots": 55,
+      "comment": "Ridge soaring",
+      "waypoints": [
+        {
+          "latitude": 39.02,
+          "longitude": -77.18
+        },
+        {
+          "latitude": 39.01,
+          "longitude": -77.16
+        },
+        {
+          "latitude": 39.0,
+          "longitude": -77.14
+        },
+        {
+          "latitude": 38.99,
+          "longitude": -77.12
+        }
+      ],
+      "altitudeMeters": 1200
+    },
+    {
+      "callsign": "W1BAL-8",
+      "type": "balloon",
+      "color": "#c026d3",
+      "speedKnots": 5,
+      "comment": "Fair winds drift",
+      "waypoints": [
+        {
+          "latitude": 38.85,
+          "longitude": -77.1
+        },
+        {
+          "latitude": 38.852,
+          "longitude": -77.095
+        },
+        {
+          "latitude": 38.854,
+          "longitude": -77.09
+        },
+        {
+          "latitude": 38.856,
+          "longitude": -77.085
+        }
+      ],
+      "altitudeMeters": 500
     },
     {
       "callsign": "WX0ABC",
       "type": "weather",
+      "color": "#0d9488",
       "latitude": 38.8765,
       "longitude": -77.1233,
       "comment": "Backyard WX",
@@ -108,8 +542,9 @@
     {
       "callsign": "WX1RKI",
       "type": "weather",
-      "latitude": 38.9050,
-      "longitude": -77.0450,
+      "color": "#0d9488",
+      "latitude": 38.905,
+      "longitude": -77.045,
       "comment": "Rooftop station",
       "weatherSequence": [
         {
@@ -162,8 +597,9 @@
     {
       "callsign": "WX2MTR",
       "type": "weather",
-      "latitude": 38.8620,
-      "longitude": -77.0320,
+      "color": "#0d9488",
+      "latitude": 38.862,
+      "longitude": -77.032,
       "comment": "Marina pier",
       "weatherSequence": [
         {
@@ -207,8 +643,9 @@
     {
       "callsign": "W1DIGI",
       "type": "repeater",
-      "latitude": 38.9000,
-      "longitude": -77.1500,
+      "color": "#6b7280",
+      "latitude": 38.9,
+      "longitude": -77.15,
       "comment": "Wide area digi PHG5450"
     }
   ]

@@ -22,6 +22,22 @@ void main() {
       expect(packet.longitude, closeTo(-77.1233, 0.0001));
       expect(packet.comment, 'Test comment');
     });
+
+    test('parses digipeater as repeater packet type', () {
+      final frame = Ax25Frame(
+        destination: 'APRS',
+        source: 'W1DIGI',
+        path: const [],
+        info: '!3852.59N/07707.40W#Wide area digi PHG5450',
+      );
+
+      final packet = AprsParser.parse(frame);
+
+      expect(packet, isNotNull);
+      expect(packet!.packetType, AprsPacketType.repeater);
+      expect(packet.format, 'repeater');
+      expect(packet.symbolCode, '#');
+    });
   });
 
   group('compressed position', () {

@@ -82,15 +82,16 @@ networking.
 When `APRS_PACKET_SOURCE=simulator`, point `APRS_SIMULATOR_CONFIG` at a JSON
 file describing the stations to emit. See
 [`deploy/simulator.example.json`](deploy/simulator.example.json) for a sample
-with all supported station types:
+with all supported station types. Mobile stations may use any Wayfinder
+transportation mode name as `type` (`onFoot`, `horse`, `bike`, `motorcycle`,
+`atv`, `landVehicle`, `truck`, `bus`, `rv`, `train`, `ambulance`, `fireTruck`,
+`farmVehicle`, `canoe`, `watercraft`, `sailboat`, `aircraft`, `helicopter`,
+`glider`, `balloon`) or legacy aliases (`car`, `boat`, `hiker`, `train`,
+`aircraft`).
 
 | `type` | Behavior |
 | --- | --- |
-| `car` | Moves along `waypoints`; tracking marker with `landVehicle` mode |
-| `boat` | Moves along `waypoints`; tracking marker with `watercraft` mode |
-| `aircraft` | Moves along `waypoints`; tracking marker with `aircraft` mode |
-| `hiker` | Moves along `waypoints`; tracking marker with `onFoot` mode |
-| `train` | Moves along `waypoints`; tracking marker with `landVehicle` mode |
+| Wayfinder mode or legacy alias | Moves along `waypoints`; tracking marker with matching `transportationMode` |
 | `weather` | Fixed location; use `weather` or cycling `weatherSequence` readings |
 | `repeater` | Fixed location |
 
@@ -100,7 +101,9 @@ false` to stop at the final waypoint instead of repeating. Mobile updates
 create or update Wayfinder markers via `/api/markers` with `isTracking: true`
 when configured in the scenario.
 
-Each station supports `callsign`, optional `comment`, and optional `speedKnots`.
+Each station supports `callsign`, optional `comment`, optional `color`, and
+optional `speedKnots`. Weather stations share the same marker color in the
+example config; omit `color` to use the gateway default for weather stations.
 Weather stations accept a static `weather` object or a `weatherSequence` array that
 cycles on each emission (`loopWeather` defaults to `true`). The gateway creates
 weather station markers with `icon: weather_station` and stores readings in the

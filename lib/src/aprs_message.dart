@@ -1,3 +1,4 @@
+import 'aprs_repeater.dart';
 import 'aprs_transportation_mode.dart';
 
 enum AprsPacketType {
@@ -5,6 +6,7 @@ enum AprsPacketType {
   mice,
   weather,
   telemetry,
+  repeater,
 }
 
 class AprsMessage {
@@ -24,6 +26,7 @@ class AprsMessage {
     this.telemetry,
     this.isTracking,
     this.transportationMode,
+    this.markerColor,
   });
 
   final AprsPacketType packetType;
@@ -41,6 +44,7 @@ class AprsMessage {
   final Map<String, dynamic>? telemetry;
   final bool? isTracking;
   final String? transportationMode;
+  final String? markerColor;
 
   bool get hasPosition => latitude != null && longitude != null;
 
@@ -49,6 +53,10 @@ class AprsMessage {
         symbolTable: symbolTable,
         symbolCode: symbolCode,
       );
+
+  bool get isRepeater =>
+      packetType == AprsPacketType.repeater ||
+      AprsRepeater.isSymbol(symbolTable: symbolTable, symbolCode: symbolCode);
 
   bool get shouldTrack => AprsTransportationMode.shouldTrack(
         packetType: packetType.name,
@@ -66,7 +74,7 @@ class AprsMessage {
   }) {
     return {
       'source': 'aprs',
-      'packetType': packetType.name,
+      'packetType': isRepeater ? 'repeater' : packetType.name,
       'format': format,
       'stationId': stationId,
       'destination': destination,
@@ -86,6 +94,7 @@ class AprsMessage {
       if (resolvedTransportationMode != null)
         'transportationMode': resolvedTransportationMode,
       if (shouldTrack || isTracking == true) 'isTracking': true,
+      if (markerColor != null && markerColor!.isNotEmpty) 'color': markerColor,
       'rawAprs': rawAprs,
     };
   }

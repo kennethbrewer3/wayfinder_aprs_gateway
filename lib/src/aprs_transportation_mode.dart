@@ -67,7 +67,7 @@ abstract final class AprsTransportationMode {
     String? symbolTable,
     String? symbolCode,
   }) {
-    if (!hasPosition || packetType == 'weather') {
+    if (!hasPosition || packetType == 'weather' || packetType == 'repeater') {
       return false;
     }
 

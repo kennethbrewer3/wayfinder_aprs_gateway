@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:test/test.dart';
 import 'package:wayfinder_aprs_gateway/wayfinder_aprs_gateway.dart';
+import 'package:wayfinder_aprs_gateway/src/wayfinder_marker_mapper.dart';
 
 void main() {
   group('simulator config', () {
@@ -69,13 +70,40 @@ void main() {
       expect(config.stations[0].type, SimulatorStationType.car);
       expect(config.stations[1].type, SimulatorStationType.boat);
       expect(config.stations[2].type, SimulatorStationType.hiker);
-      expect(config.stations[3].type, SimulatorStationType.aircraft);
-      expect(config.stations[4].type, SimulatorStationType.train);
+      expect(config.stations[3].type, SimulatorStationType.mobile);
+      expect(config.stations[3].typeName, 'aircraft');
+      expect(config.stations[4].type, SimulatorStationType.mobile);
+      expect(config.stations[4].typeName, 'train');
       expect(config.stations[0].transportationMode, 'landVehicle');
       expect(config.stations[1].transportationMode, 'watercraft');
       expect(config.stations[2].transportationMode, 'onFoot');
       expect(config.stations[3].transportationMode, 'aircraft');
-      expect(config.stations[4].transportationMode, 'landVehicle');
+      expect(config.stations[4].transportationMode, 'train');
+    });
+
+    test('loads all Wayfinder transportation modes from example config', () {
+      final config = SimulatorConfig.load(
+        'deploy/simulator.example.json',
+      );
+
+      final mobile = config.stations
+          .where((s) => s.type == SimulatorStationType.mobile)
+          .toList();
+      expect(mobile, hasLength(20));
+
+      for (final station in mobile) {
+        expect(station.color, isNotNull);
+        expect(station.transportationMode, station.typeName);
+      }
+
+      final weather = config.stations
+          .where((s) => s.type == SimulatorStationType.weather)
+          .toList();
+      expect(weather, hasLength(3));
+      expect(
+        weather.map((s) => s.color).toSet(),
+        {'#0d9488'},
+      );
     });
 
     test('accepts route as an alias for waypoints', () {
@@ -216,6 +244,31 @@ void main() {
       expect(first.message.weather!['windDirection'], 270);
       expect(second.message.weather!['windDirection'], 300);
       expect(third.message.weather!['windDirection'], 270);
+    });
+
+    test('maps repeater packets to radio_repeater markers', () {
+      final config = SimulatorConfig.fromJson({
+        'stations': [
+          {
+            'callsign': 'W1DIGI',
+            'type': 'repeater',
+            'latitude': 38.9,
+            'longitude': -77.15,
+            'comment': 'Wide area digi PHG5450',
+            'color': '#6b7280',
+          },
+        ],
+      });
+
+      final packet = SimulatorEngine(config).buildPackets().single;
+      final payload = packet.toPayload();
+
+      expect(payload['packetType'], 'repeater');
+      expect(payload['isTracking'], isNull);
+
+      final body = WayfinderMarkerMapper.createBody(payload);
+      expect(body['icon'], 'radio_repeater');
+      expect(body['isTracking'], false);
     });
   });
 

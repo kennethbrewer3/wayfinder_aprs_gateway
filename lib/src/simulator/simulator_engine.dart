@@ -121,6 +121,7 @@ class _StationState {
       case SimulatorStationType.aircraft:
       case SimulatorStationType.hiker:
       case SimulatorStationType.train:
+      case SimulatorStationType.mobile:
       case SimulatorStationType.repeater:
         return AprsInfoBuilder.uncompressedPosition(
           latitude: latitude,
@@ -143,6 +144,7 @@ class _StationState {
           symbolTable: '/',
           symbolCode: '_',
           comment: config.comment,
+          markerColor: config.color,
           weather: {
             'windDirection': _weather.windDirection,
             'windSpeed': _weather.windSpeedKnots * 0.514444,
@@ -159,9 +161,10 @@ class _StationState {
       case SimulatorStationType.aircraft:
       case SimulatorStationType.hiker:
       case SimulatorStationType.train:
+      case SimulatorStationType.mobile:
         return AprsMessage(
           packetType: AprsPacketType.position,
-          format: 'simulator-${config.type.name}',
+          format: 'simulator-${config.transportationMode ?? config.type.name}',
           latitude: latitude,
           longitude: longitude,
           symbolTable: config.resolvedSymbolTable,
@@ -169,24 +172,35 @@ class _StationState {
           comment: config.comment,
           course: course,
           speed: config.resolvedSpeedKnots,
-          altitude: config.type == SimulatorStationType.aircraft
-              ? config.altitudeMeters
-              : null,
+          altitude: _altitudeForConfig(config),
           isTracking: true,
           transportationMode: config.transportationMode,
+          markerColor: config.color,
         );
       case SimulatorStationType.repeater:
         return AprsMessage(
-          packetType: AprsPacketType.position,
+          packetType: AprsPacketType.repeater,
           format: 'simulator-repeater',
           latitude: latitude,
           longitude: longitude,
           symbolTable: config.resolvedSymbolTable,
           symbolCode: config.resolvedSymbolCode,
           comment: config.comment,
+          markerColor: config.color,
         );
     }
   }
+}
+
+int? _altitudeForConfig(SimulatorStationConfig config) {
+  if (config.altitudeMeters != null) {
+    return config.altitudeMeters;
+  }
+
+  return switch (config.transportationMode) {
+    'aircraft' || 'helicopter' || 'glider' || 'balloon' => 3500,
+    _ => null,
+  };
 }
 
 ({double latitude, double longitude}) _move(
