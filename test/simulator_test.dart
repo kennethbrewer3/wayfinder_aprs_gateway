@@ -178,6 +178,45 @@ void main() {
       expect(parsed.weather, isNotNull);
       expect(packet.toPayload()['isTracking'], isNull);
     });
+
+    test('cycles weatherSequence readings over time', () {
+      final config = SimulatorConfig.fromJson({
+        'intervalSeconds': 15,
+        'stations': [
+          {
+            'callsign': 'WX1RKI',
+            'type': 'weather',
+            'latitude': 38.905,
+            'longitude': -77.045,
+            'weatherSequence': [
+              {
+                'windDirection': 270,
+                'windSpeedKnots': 8,
+                'temperatureF': 70,
+                'humidity': 48,
+                'pressureMb': 1012.8,
+              },
+              {
+                'windDirection': 300,
+                'windSpeedKnots': 18,
+                'temperatureF': 67,
+                'humidity': 61,
+                'pressureMb': 1011.4,
+              },
+            ],
+          },
+        ],
+      });
+
+      final engine = SimulatorEngine(config);
+      final first = engine.buildPackets().single;
+      final second = engine.buildPackets().single;
+      final third = engine.buildPackets().single;
+
+      expect(first.message.weather!['windDirection'], 270);
+      expect(second.message.weather!['windDirection'], 300);
+      expect(third.message.weather!['windDirection'], 270);
+    });
   });
 
   group('simulator packet source', () {

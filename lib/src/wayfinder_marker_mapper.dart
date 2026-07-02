@@ -1,3 +1,5 @@
+import 'weather_notes_formatter.dart';
+
 /// Converts parsed APRS payloads into Wayfinder `/api/markers` bodies.
 abstract final class WayfinderMarkerMapper {
   static const defaultColor = '#2563eb';
@@ -14,6 +16,8 @@ abstract final class WayfinderMarkerMapper {
       throw FormatException('APRS payload is missing latitude/longitude');
     }
 
+    final notes = WeatherNotesFormatter.notesForPayload(payload);
+
     return {
       'name': stationId,
       'latitude': latitude.toDouble(),
@@ -25,8 +29,7 @@ abstract final class WayfinderMarkerMapper {
       if (payload['layerId'] != null) 'layerId': payload['layerId'],
       if (payload['altitude'] is num)
         'elevation': (payload['altitude'] as num).toDouble(),
-      if (payload['comment'] is String && (payload['comment'] as String).isNotEmpty)
-        'notes': payload['comment'],
+      if (notes != null && notes.isNotEmpty) 'notes': notes,
     };
   }
 
@@ -46,8 +49,10 @@ abstract final class WayfinderMarkerMapper {
     if (payload['altitude'] is num) {
       body['elevation'] = (payload['altitude'] as num).toDouble();
     }
-    if (payload['comment'] is String && (payload['comment'] as String).isNotEmpty) {
-      body['notes'] = payload['comment'];
+
+    final notes = WeatherNotesFormatter.notesForPayload(payload);
+    if (notes != null && notes.isNotEmpty) {
+      body['notes'] = notes;
     }
 
     return body;

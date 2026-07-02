@@ -91,7 +91,7 @@ with all supported station types:
 | `aircraft` | Moves along `waypoints`; tracking marker with `aircraft` mode |
 | `hiker` | Moves along `waypoints`; tracking marker with `onFoot` mode |
 | `train` | Moves along `waypoints`; tracking marker with `landVehicle` mode |
-| `weather` | Fixed location with `weather` telemetry fields |
+| `weather` | Fixed location; use `weather` or cycling `weatherSequence` readings |
 | `repeater` | Fixed location |
 
 Each mobile station supports `waypoints` (or legacy `route`): the simulator
@@ -101,6 +101,9 @@ create or update Wayfinder markers via `/api/markers` with `isTracking: true`
 when configured in the scenario.
 
 Each station supports `callsign`, optional `comment`, and optional `speedKnots`.
+Weather stations accept a static `weather` object or a `weatherSequence` array that
+cycles on each emission (`loopWeather` defaults to `true`). The gateway writes all
+weather telemetry into the Wayfinder marker `notes` field as formatted text.
 Global emission interval is controlled by top-level `intervalSeconds`.
 
 Example Docker setup:

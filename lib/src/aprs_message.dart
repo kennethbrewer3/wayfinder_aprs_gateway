@@ -1,3 +1,5 @@
+import 'aprs_transportation_mode.dart';
+
 enum AprsPacketType {
   position,
   mice,
@@ -42,6 +44,20 @@ class AprsMessage {
 
   bool get hasPosition => latitude != null && longitude != null;
 
+  String? get resolvedTransportationMode => AprsTransportationMode.resolve(
+        transportationMode: transportationMode,
+        symbolTable: symbolTable,
+        symbolCode: symbolCode,
+      );
+
+  bool get shouldTrack => AprsTransportationMode.shouldTrack(
+        packetType: packetType.name,
+        hasPosition: hasPosition,
+        transportationMode: transportationMode,
+        symbolTable: symbolTable,
+        symbolCode: symbolCode,
+      );
+
   Map<String, dynamic> toPayload({
     required String stationId,
     required String destination,
@@ -67,8 +83,9 @@ class AprsMessage {
       if (messageType != null) 'messageType': messageType,
       if (weather != null) 'weather': weather,
       if (telemetry != null) 'telemetry': telemetry,
-      if (isTracking == true) 'isTracking': true,
-      if (transportationMode != null) 'transportationMode': transportationMode,
+      if (resolvedTransportationMode != null)
+        'transportationMode': resolvedTransportationMode,
+      if (shouldTrack || isTracking == true) 'isTracking': true,
       'rawAprs': rawAprs,
     };
   }

@@ -17,8 +17,13 @@ class SimulatorEngine {
     final packets = <AprsPacket>[];
 
     for (final state in _states) {
-      state.advance(config.interval);
-      packets.add(state.buildPacket());
+      if (state.config.type == SimulatorStationType.weather) {
+        packets.add(state.buildPacket());
+        state.advance(config.interval);
+      } else {
+        state.advance(config.interval);
+        packets.add(state.buildPacket());
+      }
     }
 
     return packets;
@@ -31,13 +36,16 @@ class _StationState {
         latitude = config.latitude,
         longitude = config.longitude,
         course = config.course ?? 0,
-        _waypointPath = _buildWaypointPath(config);
+        _waypointPath = _buildWaypointPath(config),
+        _weather = config.initialWeather;
 
   final SimulatorStationConfig config;
   double latitude;
   double longitude;
   int course;
   final WaypointPath? _waypointPath;
+  SimulatorWeatherSettings _weather;
+  var _weatherStep = 0;
 
   static WaypointPath? _buildWaypointPath(SimulatorStationConfig config) {
     if (config.waypoints.length < 2) return null;
@@ -48,6 +56,11 @@ class _StationState {
   }
 
   void advance(Duration interval) {
+    if (config.type == SimulatorStationType.weather) {
+      _advanceWeather();
+      return;
+    }
+
     if (!config.type.isMobile) return;
 
     final distanceKm =
@@ -63,6 +76,19 @@ class _StationState {
     }
 
     _advanceByCourse(distanceKm);
+  }
+
+  void _advanceWeather() {
+    final sequence = config.weatherSequence;
+    if (sequence.length <= 1) return;
+
+    if (config.weatherLoop) {
+      _weatherStep = (_weatherStep + 1) % sequence.length;
+    } else if (_weatherStep < sequence.length - 1) {
+      _weatherStep++;
+    }
+
+    _weather = sequence[_weatherStep];
   }
 
   void _advanceByCourse(double distanceKm) {
@@ -87,7 +113,7 @@ class _StationState {
         return AprsInfoBuilder.weatherPosition(
           latitude: latitude,
           longitude: longitude,
-          weather: config.weather,
+          weather: _weather,
           comment: config.comment,
         );
       case SimulatorStationType.car:
@@ -118,14 +144,14 @@ class _StationState {
           symbolCode: '_',
           comment: config.comment,
           weather: {
-            'windDirection': config.weather.windDirection,
-            'windSpeed': config.weather.windSpeedKnots * 0.514444,
-            'windGust': config.weather.windGustKnots * 0.514444,
-            'temperature': (config.weather.temperatureF - 32) / 1.8,
+            'windDirection': _weather.windDirection,
+            'windSpeed': _weather.windSpeedKnots * 0.514444,
+            'windGust': _weather.windGustKnots * 0.514444,
+            'temperature': (_weather.temperatureF - 32) / 1.8,
             'humidity':
-                config.weather.humidity == 0 ? 100 : config.weather.humidity,
-            'pressure': config.weather.pressureMb,
-            'rain1h': config.weather.rain1hInches * 25.4,
+                _weather.humidity == 0 ? 100 : _weather.humidity,
+            'pressure': _weather.pressureMb,
+            'rain1h': _weather.rain1hInches * 25.4,
           },
         );
       case SimulatorStationType.car:

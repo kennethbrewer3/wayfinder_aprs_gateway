@@ -89,6 +89,26 @@ class SimulatorWeatherSettings {
   final int humidity;
   final double pressureMb;
   final double rain1hInches;
+
+  SimulatorWeatherSettings copyWith({
+    int? windDirection,
+    int? windSpeedKnots,
+    int? windGustKnots,
+    int? temperatureF,
+    int? humidity,
+    double? pressureMb,
+    double? rain1hInches,
+  }) {
+    return SimulatorWeatherSettings(
+      windDirection: windDirection ?? this.windDirection,
+      windSpeedKnots: windSpeedKnots ?? this.windSpeedKnots,
+      windGustKnots: windGustKnots ?? this.windGustKnots,
+      temperatureF: temperatureF ?? this.temperatureF,
+      humidity: humidity ?? this.humidity,
+      pressureMb: pressureMb ?? this.pressureMb,
+      rain1hInches: rain1hInches ?? this.rain1hInches,
+    );
+  }
 }
 
 class SimulatorStationConfig {
@@ -108,6 +128,8 @@ class SimulatorStationConfig {
     this.waypoints = const [],
     this.loopWaypoints = true,
     SimulatorWeatherSettings? weather,
+    this.weatherSequence = const [],
+    this.weatherLoop = true,
     this.intervalSeconds,
   }) : weather = weather ?? SimulatorWeatherSettings();
 
@@ -142,6 +164,10 @@ class SimulatorStationConfig {
               Map<String, dynamic>.from(json['weather'] as Map),
             )
           : SimulatorWeatherSettings(),
+      weatherSequence: _optionalWeatherSequence(json['weatherSequence']),
+      weatherLoop: json['loopWeather'] is bool
+          ? json['loopWeather'] as bool
+          : true,
       intervalSeconds: _optionalInt(json, 'intervalSeconds'),
     );
   }
@@ -161,7 +187,12 @@ class SimulatorStationConfig {
   final List<SimulatorWaypoint> waypoints;
   final bool loopWaypoints;
   final SimulatorWeatherSettings weather;
+  final List<SimulatorWeatherSettings> weatherSequence;
+  final bool weatherLoop;
   final int? intervalSeconds;
+
+  SimulatorWeatherSettings get initialWeather =>
+      weatherSequence.isNotEmpty ? weatherSequence.first : weather;
 
   bool get isTracking => type.isMobile;
 
@@ -319,6 +350,21 @@ List<SimulatorWaypoint> _optionalWaypoints(Object? value) {
       .map(
         (point) => SimulatorWaypoint.fromJson(
           Map<String, dynamic>.from(point as Map),
+        ),
+      )
+      .toList();
+}
+
+List<SimulatorWeatherSettings> _optionalWeatherSequence(Object? value) {
+  if (value == null) return const [];
+  if (value is! List) {
+    throw FormatException('Invalid weatherSequence in simulator config');
+  }
+
+  return value
+      .map(
+        (reading) => SimulatorWeatherSettings.fromJson(
+          Map<String, dynamic>.from(reading as Map),
         ),
       )
       .toList();

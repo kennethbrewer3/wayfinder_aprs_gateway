@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'config.dart';
 import 'logger.dart';
+import 'track_zone_geometry.dart';
 import 'wayfinder_marker_mapper.dart';
 
 class MappingClient {
@@ -71,6 +72,7 @@ class MappingClient {
         'packetType': payload['packetType'],
       },
     );
+    await _syncTrackTransportationMode(marker, payload);
     return markerId != null;
   }
 
@@ -103,7 +105,74 @@ class MappingClient {
         'packetType': payload['packetType'],
       },
     );
+    if (decoded is Map) {
+      await _syncTrackTransportationMode(
+        Map<String, dynamic>.from(decoded),
+        payload,
+      );
+    }
     return true;
+  }
+
+  Future<void> _syncTrackTransportationMode(
+    Map<String, dynamic> marker,
+    Map<String, dynamic> payload,
+  ) async {
+    final transportationMode = payload['transportationMode']?.toString();
+    if (transportationMode == null || transportationMode.isEmpty) {
+      return;
+    }
+
+    final trackZoneId = marker['trackZoneId']?.toString();
+    if (trackZoneId == null || trackZoneId.isEmpty) {
+      return;
+    }
+
+    final zone = await getZone(trackZoneId);
+    if (zone == null) {
+      return;
+    }
+
+    final geometryJson = zone['geometryJson']?.toString();
+    if (geometryJson == null || geometryJson.isEmpty) {
+      return;
+    }
+
+    final updatedGeometry = TrackZoneGeometry.updatedTransportationMode(
+      geometryJson,
+      transportationMode,
+    );
+    if (updatedGeometry == null) {
+      return;
+    }
+
+    final decoded = await _sendJson(
+      method: 'PATCH',
+      url: zonesApiUrl(config.mappingServerUrl).replace(
+        path: '/api/zones/$trackZoneId',
+      ),
+      body: {'geometryJson': updatedGeometry},
+    );
+
+    if (decoded is Map) {
+      logger.info(
+        'Synced track transportation mode',
+        fields: {
+          'stationId': payload['stationId'],
+          'trackZoneId': trackZoneId,
+          'transportationMode': transportationMode,
+        },
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>?> getZone(String id) async {
+    final decoded = await _sendJson(
+      method: 'GET',
+      url: zonesApiUrl(config.mappingServerUrl).replace(path: '/api/zones/$id'),
+    );
+    if (decoded is! Map) return null;
+    return Map<String, dynamic>.from(decoded);
   }
 
   Future<String?> _findMarkerIdByName(

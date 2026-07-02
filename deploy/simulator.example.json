@@ -65,16 +65,144 @@
       "type": "weather",
       "latitude": 38.8765,
       "longitude": -77.1233,
-      "weather": {
-        "windDirection": 225,
-        "windSpeedKnots": 12,
-        "windGustKnots": 18,
-        "temperatureF": 72,
-        "humidity": 55,
-        "pressureMb": 1013.8,
-        "rain1hInches": 0.01
-      },
-      "comment": "Backyard WX"
+      "comment": "Backyard WX",
+      "weatherSequence": [
+        {
+          "windDirection": 180,
+          "windSpeedKnots": 4,
+          "windGustKnots": 8,
+          "temperatureF": 68,
+          "humidity": 62,
+          "pressureMb": 1014.2,
+          "rain1hInches": 0
+        },
+        {
+          "windDirection": 195,
+          "windSpeedKnots": 6,
+          "windGustKnots": 10,
+          "temperatureF": 71,
+          "humidity": 58,
+          "pressureMb": 1013.9,
+          "rain1hInches": 0
+        },
+        {
+          "windDirection": 210,
+          "windSpeedKnots": 9,
+          "windGustKnots": 14,
+          "temperatureF": 74,
+          "humidity": 54,
+          "pressureMb": 1013.5,
+          "rain1hInches": 0
+        },
+        {
+          "windDirection": 225,
+          "windSpeedKnots": 12,
+          "windGustKnots": 18,
+          "temperatureF": 76,
+          "humidity": 50,
+          "pressureMb": 1013.1,
+          "rain1hInches": 0.01
+        }
+      ]
+    },
+    {
+      "callsign": "WX1RKI",
+      "type": "weather",
+      "latitude": 38.9050,
+      "longitude": -77.0450,
+      "comment": "Rooftop station",
+      "weatherSequence": [
+        {
+          "windDirection": 270,
+          "windSpeedKnots": 8,
+          "windGustKnots": 12,
+          "temperatureF": 70,
+          "humidity": 48,
+          "pressureMb": 1012.8,
+          "rain1hInches": 0
+        },
+        {
+          "windDirection": 285,
+          "windSpeedKnots": 14,
+          "windGustKnots": 22,
+          "temperatureF": 69,
+          "humidity": 52,
+          "pressureMb": 1012.1,
+          "rain1hInches": 0.02
+        },
+        {
+          "windDirection": 300,
+          "windSpeedKnots": 18,
+          "windGustKnots": 28,
+          "temperatureF": 67,
+          "humidity": 61,
+          "pressureMb": 1011.4,
+          "rain1hInches": 0.08
+        },
+        {
+          "windDirection": 315,
+          "windSpeedKnots": 22,
+          "windGustKnots": 34,
+          "temperatureF": 65,
+          "humidity": 70,
+          "pressureMb": 1010.6,
+          "rain1hInches": 0.15
+        },
+        {
+          "windDirection": 330,
+          "windSpeedKnots": 16,
+          "windGustKnots": 24,
+          "temperatureF": 66,
+          "humidity": 64,
+          "pressureMb": 1011.0,
+          "rain1hInches": 0.05
+        }
+      ]
+    },
+    {
+      "callsign": "WX2MTR",
+      "type": "weather",
+      "latitude": 38.8620,
+      "longitude": -77.0320,
+      "comment": "Marina pier",
+      "weatherSequence": [
+        {
+          "windDirection": 120,
+          "windSpeedKnots": 6,
+          "windGustKnots": 9,
+          "temperatureF": 72,
+          "humidity": 78,
+          "pressureMb": 1013.6,
+          "rain1hInches": 0
+        },
+        {
+          "windDirection": 135,
+          "windSpeedKnots": 8,
+          "windGustKnots": 11,
+          "temperatureF": 73,
+          "humidity": 82,
+          "pressureMb": 1013.4,
+          "rain1hInches": 0
+        },
+        {
+          "windDirection": 150,
+          "windSpeedKnots": 10,
+          "windGustKnots": 14,
+          "temperatureF": 74,
+          "humidity": 88,
+          "pressureMb": 1013.2,
+          "rain1hInches": 0.01
+        },
+        {
+          "windDirection": 160,
+          "windSpeedKnots": 7,
+          "windGustKnots": 10,
+          "temperatureF": 75,
+          "humidity": 92,
+          "pressureMb": 1013.0,
+          "rain1hInches": 0.02
+        }
+      ]
     },
     {
       "callsign": "W1DIGI",

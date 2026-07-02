@@ -23,6 +23,26 @@ void main() {
       expect(body['notes'], 'Test');
     });
 
+    test('formats weather telemetry into marker notes', () {
+      final body = WayfinderMarkerMapper.createBody({
+        'stationId': 'WX0ABC',
+        'packetType': 'weather',
+        'latitude': 38.8765,
+        'longitude': -77.1233,
+        'comment': 'Backyard WX',
+        'weather': {
+          'windDirection': 225,
+          'windSpeed': 6.17328,
+          'temperature': 22.2,
+          'humidity': 55,
+          'pressure': 1013.8,
+        },
+      });
+
+      expect(body['notes'], contains('Wind: 225°'));
+      expect(body['notes'], contains('Backyard WX'));
+    });
+
     test('builds update body with changed coordinates', () {
       final body = WayfinderMarkerMapper.updateBody({
         'latitude': 39.0,
