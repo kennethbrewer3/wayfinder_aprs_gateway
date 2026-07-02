@@ -1,0 +1,23 @@
+[Unit]
+Description=Wayfinder APRS Gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aprs
+Group=aprs
+WorkingDirectory=/opt/wayfinder-aprs-gateway
+ExecStart=/opt/wayfinder-aprs-gateway/wayfinder_aprs_gateway --config /etc/wayfinder-aprs-gateway/config.json
+Restart=always
+RestartSec=5
+Environment=APRS_LOG_LEVEL=info
+
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/wayfinder-aprs-gateway
+
+[Install]
+WantedBy=multi-user.target

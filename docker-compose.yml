@@ -1,0 +1,23 @@
+services:
+  wayfinder-aprs-gateway:
+    build: .
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      APRS_KISS_HOST: host.docker.internal
+      APRS_KISS_PORT: "8001"
+      APRS_MAPPING_SERVER_URL: http://host.docker.internal:8080/api/aprs/position
+      APRS_AUTH_TOKEN: ${APRS_AUTH_TOKEN:-}
+      APRS_AUTH_HEADER: Authorization
+      APRS_AUTH_SCHEME: Bearer
+      APRS_DUPLICATE_WINDOW_SECONDS: "30"
+      APRS_RETRY_INTERVAL_SECONDS: "30"
+      APRS_MAX_RETRY_QUEUE_SIZE: "1000"
+      APRS_RECONNECT_DELAY_SECONDS: "5"
+      APRS_LOG_LEVEL: info
+    # Uncomment to load defaults from a mounted config file instead.
+    # volumes:
+    #   - ./config.json:/app/config.json:ro
+    # environment:
+    #   APRS_CONFIG_FILE: /app/config.json

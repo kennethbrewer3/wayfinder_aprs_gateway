@@ -1,0 +1,13 @@
+{
+  "kissHost": "127.0.0.1",
+  "kissPort": 8001,
+  "mappingServerUrl": "http://localhost:8080/api/aprs/position",
+  "authToken": null,
+  "authHeader": "Authorization",
+  "authScheme": "Bearer",
+  "duplicateWindowSeconds": 30,
+  "retryIntervalSeconds": 30,
+  "maxRetryQueueSize": 1000,
+  "reconnectDelaySeconds": 5,
+  "logLevel": "info"
+}

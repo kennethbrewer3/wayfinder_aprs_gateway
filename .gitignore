@@ -1,0 +1,27 @@
+# Dart tooling
+# https://dart.dev/tools/private-files
+.dart_tool/
+.packages
+build/
+coverage/
+doc/api/
+
+# Compiled executable (dart compile exe)
+/wayfinder_aprs_gateway
+/wayfinder_aprs_gateway.exe
+
+# Local configuration (use config.example.json as a template)
+config.json
+
+# Secrets and environment overrides
+.env
+.env.*
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

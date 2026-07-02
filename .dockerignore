@@ -1,0 +1,7 @@
+.git
+.dart_tool
+.packages
+build
+test
+*.md
+deploy
