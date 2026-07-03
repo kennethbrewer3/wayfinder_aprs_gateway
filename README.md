@@ -105,9 +105,13 @@ Each station supports `callsign`, optional `comment`, optional `color`, and
 optional `speedKnots`. Weather stations share the same marker color in the
 example config; omit `color` to use the gateway default for weather stations.
 Weather stations accept a static `weather` object or a `weatherSequence` array that
-cycles on each emission (`loopWeather` defaults to `true`). The gateway creates
-weather station markers with `icon: weather_station` and stores readings in the
-marker `weatherJson` field for the Wayfinder weather station UI.
+cycles on each emission (`loopWeather` defaults to `true`). Extended readings such
+as luminosity, solar radiation, UV index, snowfall, water level, soil temperature,
+soil moisture, leaf wetness, indoor temperature/humidity, battery voltage, wind
+run, station status, sensor health, and dew point (derived when omitted) are passed
+through to marker `weatherJson` when present. The gateway creates weather station
+markers with `icon: weather_station` and stores readings in the marker `weatherJson`
+field for the Wayfinder weather station UI.
 Global emission interval is controlled by top-level `intervalSeconds`.
 
 Example Docker setup:

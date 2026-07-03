@@ -77,6 +77,21 @@ class SimulatorWeatherSettings {
     this.humidity = 50,
     this.pressureMb = 1013.2,
     this.rain1hInches = 0,
+    this.luminosity,
+    this.solarRadiation,
+    this.uvIndex,
+    this.snowfallInches,
+    this.waterLevelMeters,
+    this.soilTemperatureF,
+    this.soilMoisture,
+    this.leafWetness,
+    this.indoorTemperatureF,
+    this.indoorHumidity,
+    this.batteryVoltage,
+    this.windRunKm,
+    this.stationStatus,
+    this.sensorHealth,
+    this.dewPointF,
   });
 
   factory SimulatorWeatherSettings.fromJson(Map<String, dynamic>? json) {
@@ -90,6 +105,21 @@ class SimulatorWeatherSettings {
       humidity: _optionalInt(json, 'humidity') ?? 50,
       pressureMb: _optionalDouble(json, 'pressureMb') ?? 1013.2,
       rain1hInches: _optionalDouble(json, 'rain1hInches') ?? 0,
+      luminosity: _optionalDouble(json, 'luminosity'),
+      solarRadiation: _optionalDouble(json, 'solarRadiation'),
+      uvIndex: _optionalDouble(json, 'uvIndex'),
+      snowfallInches: _optionalDouble(json, 'snowfallInches'),
+      waterLevelMeters: _optionalDouble(json, 'waterLevelMeters'),
+      soilTemperatureF: _optionalDouble(json, 'soilTemperatureF'),
+      soilMoisture: _optionalDouble(json, 'soilMoisture'),
+      leafWetness: _optionalDouble(json, 'leafWetness'),
+      indoorTemperatureF: _optionalDouble(json, 'indoorTemperatureF'),
+      indoorHumidity: _optionalInt(json, 'indoorHumidity'),
+      batteryVoltage: _optionalDouble(json, 'batteryVoltage'),
+      windRunKm: _optionalDouble(json, 'windRunKm'),
+      stationStatus: json['stationStatus'] as String?,
+      sensorHealth: json['sensorHealth'] as String?,
+      dewPointF: _optionalDouble(json, 'dewPointF'),
     );
   }
 
@@ -100,6 +130,54 @@ class SimulatorWeatherSettings {
   final int humidity;
   final double pressureMb;
   final double rain1hInches;
+  final double? luminosity;
+  final double? solarRadiation;
+  final double? uvIndex;
+  final double? snowfallInches;
+  final double? waterLevelMeters;
+  final double? soilTemperatureF;
+  final double? soilMoisture;
+  final double? leafWetness;
+  final double? indoorTemperatureF;
+  final int? indoorHumidity;
+  final double? batteryVoltage;
+  final double? windRunKm;
+  final String? stationStatus;
+  final String? sensorHealth;
+  final double? dewPointF;
+
+  Map<String, dynamic> toWeatherMap() {
+    final humidityValue = humidity == 0 ? 100 : humidity;
+
+    return {
+      'windDirection': windDirection,
+      'windSpeed': windSpeedKnots * 0.514444,
+      'windGust': windGustKnots * 0.514444,
+      'temperature': (temperatureF - 32) / 1.8,
+      'humidity': humidityValue,
+      'pressure': pressureMb,
+      'rain1h': rain1hInches * 25.4,
+      if (luminosity != null) 'luminosity': luminosity,
+      if (solarRadiation != null) 'solarRadiation': solarRadiation,
+      if (uvIndex != null) 'uvIndex': uvIndex,
+      if (snowfallInches != null) 'snowfall': snowfallInches! * 25.4,
+      if (waterLevelMeters != null) 'waterLevel': waterLevelMeters,
+      if (soilTemperatureF != null)
+        'soilTemperature': (soilTemperatureF! - 32) / 1.8,
+      if (soilMoisture != null) 'soilMoisture': soilMoisture,
+      if (leafWetness != null) 'leafWetness': leafWetness,
+      if (indoorTemperatureF != null)
+        'indoorTemperature': (indoorTemperatureF! - 32) / 1.8,
+      if (indoorHumidity != null) 'indoorHumidityPercent': indoorHumidity,
+      if (batteryVoltage != null) 'batteryVoltage': batteryVoltage,
+      if (windRunKm != null) 'windRun': windRunKm,
+      if (stationStatus != null && stationStatus!.trim().isNotEmpty)
+        'stationStatus': stationStatus!.trim(),
+      if (sensorHealth != null && sensorHealth!.trim().isNotEmpty)
+        'sensorHealth': sensorHealth!.trim(),
+      if (dewPointF != null) 'dewPoint': (dewPointF! - 32) / 1.8,
+    };
+  }
 
   SimulatorWeatherSettings copyWith({
     int? windDirection,
@@ -118,6 +196,21 @@ class SimulatorWeatherSettings {
       humidity: humidity ?? this.humidity,
       pressureMb: pressureMb ?? this.pressureMb,
       rain1hInches: rain1hInches ?? this.rain1hInches,
+      luminosity: luminosity,
+      solarRadiation: solarRadiation,
+      uvIndex: uvIndex,
+      snowfallInches: snowfallInches,
+      waterLevelMeters: waterLevelMeters,
+      soilTemperatureF: soilTemperatureF,
+      soilMoisture: soilMoisture,
+      leafWetness: leafWetness,
+      indoorTemperatureF: indoorTemperatureF,
+      indoorHumidity: indoorHumidity,
+      batteryVoltage: batteryVoltage,
+      windRunKm: windRunKm,
+      stationStatus: stationStatus,
+      sensorHealth: sensorHealth,
+      dewPointF: dewPointF,
     );
   }
 }

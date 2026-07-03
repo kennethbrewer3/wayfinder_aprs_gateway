@@ -508,7 +508,22 @@
           "temperatureF": 68,
           "humidity": 62,
           "pressureMb": 1014.2,
-          "rain1hInches": 0
+          "rain1hInches": 0,
+          "luminosity": 850,
+          "solarRadiation": 18.5,
+          "uvIndex": 6,
+          "snowfallInches": 0.1,
+          "waterLevelMeters": 1.42,
+          "soilTemperatureF": 57.6,
+          "soilMoisture": 38,
+          "leafWetness": 12,
+          "indoorTemperatureF": 69.8,
+          "indoorHumidity": 45,
+          "batteryVoltage": 13.2,
+          "windRunKm": 48.5,
+          "stationStatus": "OK",
+          "sensorHealth": "All sensors reporting",
+          "dewPointF": 53.9
         },
         {
           "windDirection": 195,

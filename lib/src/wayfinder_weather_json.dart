@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 /// Builds Wayfinder marker `weatherJson` payloads for the weather station UI.
 abstract final class WayfinderWeatherJson {
@@ -50,6 +51,7 @@ abstract final class WayfinderWeatherJson {
         ? DateTime.now().toUtc()
         : DateTime.tryParse(observedAt)?.toUtc() ?? DateTime.now().toUtc();
 
+    const temperatureUnit = 'C';
     final temperature = _optionalDouble(weatherMap['temperature']);
     final humidity = _optionalInt(weatherMap['humidity']);
     final pressure = _optionalDouble(weatherMap['pressure']);
@@ -66,7 +68,7 @@ abstract final class WayfinderWeatherJson {
       'source': payload['source']?.toString() ?? 'aprs',
       if (temperature != null) ...{
         'temperature': _round(temperature, 1),
-        'temperatureUnit': 'C',
+        'temperatureUnit': temperatureUnit,
       },
       if (humidity != null) 'humidityPercent': humidity,
       if (precipitationMm != null && precipitationMm > 0) ...{
@@ -86,9 +88,124 @@ abstract final class WayfinderWeatherJson {
         'pressure': _round(pressure, 1),
         'pressureUnit': 'hPa',
       },
+      ..._extendedFieldsFromWeather(weatherMap, temperatureUnit: temperatureUnit),
     };
 
+    final explicitDewPoint = _optionalDouble(weatherMap['dewPoint']);
+    final dewPoint = explicitDewPoint ??
+        (temperature != null && humidity != null
+            ? _deriveDewPointCelsius(temperature, humidity)
+            : null);
+    if (dewPoint != null) {
+      reading['dewPoint'] = _round(dewPoint, 1);
+      reading['dewPointUnit'] = temperatureUnit;
+    }
+
     return _hasMeasurements(reading) ? reading : null;
+  }
+
+  static Map<String, dynamic> _extendedFieldsFromWeather(
+    Map<String, dynamic> weather, {
+    required String temperatureUnit,
+  }) {
+    final fields = <String, dynamic>{};
+
+    void addDouble(
+      String sourceKey,
+      String outputKey, {
+      int fractionDigits = 1,
+      String? unitKey,
+      String? unit,
+      Iterable<String> aliases = const [],
+    }) {
+      final value = _firstDouble(weather, [sourceKey, ...aliases]);
+      if (value == null) {
+        return;
+      }
+      fields[outputKey] = _round(value, fractionDigits);
+      if (unitKey != null && unit != null) {
+        fields[unitKey] = unit;
+      }
+    }
+
+    void addInt(String sourceKey, String outputKey, {Iterable<String> aliases = const []}) {
+      final value = _firstInt(weather, [sourceKey, ...aliases]);
+      if (value != null) {
+        fields[outputKey] = value;
+      }
+    }
+
+    void addText(String sourceKey, String outputKey) {
+      final value = weather[sourceKey]?.toString().trim();
+      if (value != null && value.isNotEmpty) {
+        fields[outputKey] = value;
+      }
+    }
+
+    addDouble('luminosity', 'luminosity', unitKey: 'luminosityUnit', unit: 'W/m²');
+    addDouble(
+      'solarRadiation',
+      'solarRadiation',
+      unitKey: 'solarRadiationUnit',
+      unit: 'MJ/m²',
+    );
+    addDouble('uvIndex', 'uvIndex', fractionDigits: 1);
+    addDouble('snowfall', 'snowfall', unitKey: 'snowfallUnit', unit: 'mm', aliases: ['snow']);
+    addDouble('waterLevel', 'waterLevel', fractionDigits: 2, unitKey: 'waterLevelUnit', unit: 'm');
+    addDouble(
+      'soilTemperature',
+      'soilTemperature',
+      unitKey: 'soilTemperatureUnit',
+      unit: temperatureUnit,
+    );
+    addDouble(
+      'soilMoisture',
+      'soilMoisture',
+      unitKey: 'soilMoistureUnit',
+      unit: '%',
+    );
+    addDouble(
+      'leafWetness',
+      'leafWetness',
+      unitKey: 'leafWetnessUnit',
+      unit: '%',
+    );
+    addDouble(
+      'indoorTemperature',
+      'indoorTemperature',
+      unitKey: 'indoorTemperatureUnit',
+      unit: temperatureUnit,
+    );
+    addInt(
+      'indoorHumidityPercent',
+      'indoorHumidityPercent',
+      aliases: ['indoorHumidity'],
+    );
+    addDouble(
+      'batteryVoltage',
+      'batteryVoltage',
+      fractionDigits: 2,
+      unitKey: 'batteryVoltageUnit',
+      unit: 'V',
+    );
+    addDouble('windRun', 'windRun', unitKey: 'windRunUnit', unit: 'km');
+    addText('stationStatus', 'stationStatus');
+    addText('sensorHealth', 'sensorHealth');
+
+    return fields;
+  }
+
+  static double? _deriveDewPointCelsius(double temperatureC, int humidityPercent) {
+    if (humidityPercent <= 0 || humidityPercent > 100) {
+      return null;
+    }
+
+    const a = 17.27;
+    const b = 237.7;
+    final relativeHumidity = humidityPercent / 100.0;
+    final gamma =
+        (a * temperatureC) / (b + temperatureC) + math.log(relativeHumidity);
+    return (b * gamma) / (a - gamma);
   }
 
   static List<Map<String, dynamic>> _historyFromExisting(String? raw) {
@@ -176,14 +293,59 @@ abstract final class WayfinderWeatherJson {
   }
 
   static bool _hasMeasurements(Map<String, dynamic> reading) {
-    return reading.containsKey('temperature') ||
-        reading.containsKey('humidityPercent') ||
-        reading.containsKey('precipitation') ||
-        reading.containsKey('windSpeed') ||
-        reading.containsKey('pressure') ||
-        reading.containsKey('weatherCode') ||
-        (reading['condition'] is String &&
-            (reading['condition'] as String).trim().isNotEmpty);
+    const measurementKeys = {
+      'temperature',
+      'humidityPercent',
+      'precipitation',
+      'windSpeed',
+      'pressure',
+      'weatherCode',
+      'dewPoint',
+      'luminosity',
+      'solarRadiation',
+      'uvIndex',
+      'snowfall',
+      'waterLevel',
+      'soilTemperature',
+      'soilMoisture',
+      'leafWetness',
+      'indoorTemperature',
+      'indoorHumidityPercent',
+      'batteryVoltage',
+      'windRun',
+      'stationStatus',
+      'sensorHealth',
+    };
+
+    if (measurementKeys.any(reading.containsKey)) {
+      return true;
+    }
+
+    return reading['condition'] is String &&
+        (reading['condition'] as String).trim().isNotEmpty;
+  }
+
+  static double? _firstDouble(
+    Map<String, dynamic> weather,
+    Iterable<String> keys,
+  ) {
+    for (final key in keys) {
+      final value = _optionalDouble(weather[key]);
+      if (value != null) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  static int? _firstInt(Map<String, dynamic> weather, Iterable<String> keys) {
+    for (final key in keys) {
+      final value = _optionalInt(weather[key]);
+      if (value != null) {
+        return value;
+      }
+    }
+    return null;
   }
 
   static double _round(double value, int fractionDigits) {

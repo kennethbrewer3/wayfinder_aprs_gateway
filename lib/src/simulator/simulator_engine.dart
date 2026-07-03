@@ -145,16 +145,7 @@ class _StationState {
           symbolCode: '_',
           comment: config.comment,
           markerColor: config.color,
-          weather: {
-            'windDirection': _weather.windDirection,
-            'windSpeed': _weather.windSpeedKnots * 0.514444,
-            'windGust': _weather.windGustKnots * 0.514444,
-            'temperature': (_weather.temperatureF - 32) / 1.8,
-            'humidity':
-                _weather.humidity == 0 ? 100 : _weather.humidity,
-            'pressure': _weather.pressureMb,
-            'rain1h': _weather.rain1hInches * 25.4,
-          },
+          weather: _weather.toWeatherMap(),
         );
       case SimulatorStationType.car:
       case SimulatorStationType.boat:
